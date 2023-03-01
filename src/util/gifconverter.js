@@ -19,24 +19,26 @@ class GIFConverter {
 		console.debug('Convert images into .gif');
 		const encoder = new GIFEncoder(width, height);
 
-		encoder.createReadStream().pipe(fs.createWriteStream(outputPath));
+		const fileStream = fs.createWriteStream(outputPath);
+		encoder.createReadStream().pipe(fileStream);
 
 		encoder.start();
 		encoder.setDelay(delay);
 		encoder.setRepeat(repeat);
+		encoder.useOptimizer = true;
+		encoder.setThreshold(0);
+		encoder.setTransparent(0x000000);
+		console.log(repeat);
 
-		for (frame in imageDataArray) {
+		for (const frame of imageDataArray) {
 			encoder.addFrame(frame);
 		}
 
 		encoder.finish();
 
-		const fileStream = fs.createWriteStream(outputPath);
-		stream.pipe(fileStream);
-
 		return new Promise((resolve, reject) => {
 			fileStream.on('finish', () => {
-				resolve();
+				resolve('Done');
 			});
 			fileStream.on('error', (error) => {
 				reject(error);

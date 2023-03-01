@@ -15,7 +15,6 @@
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.1.0",
-    "gifencoder": "^2.0.1",
     "gl": "^6.0.2",
     "node": "^19.6.1",
     "png-file-stream": "^1.2.1",

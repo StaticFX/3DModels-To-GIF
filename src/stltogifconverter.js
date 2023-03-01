@@ -1,7 +1,9 @@
 const { PNGConverter } = require('./util/pngconverter.js');
 const { STLRenderer } = require('./util/stlrenderer.js');
 const { GIFConverter } = require('./util/gifconverter.js');
+const { waitUntilTrue } = require('./util/util.js');
 const GL = require('gl');
+const path = require('path');
 
 class STLToGIFConverter {
 	#ready = false;
@@ -23,42 +25,45 @@ class STLToGIFConverter {
 	}
 
 	async #setup() {
-		await this.#waitUntilTrue(() => renderer.loaded);
+		await waitUntilTrue(() => this.#stlRenderer.loaded);
 		this.#ready = true;
 	}
 
-	#waitUntilTrue(booleanFn) {
-		return new Promise((resolve) => {
-			const checkInterval = setInterval(() => {
-				if (booleanFn()) {
-					clearInterval(checkInterval);
-					resolve();
-				}
-			}, 100);
-		});
-	}
-
-	async generateGIF(angle, delay, quality) {
-		if (this.#ready) throw new Error('Converter not ready yet!');
+	async generateGIF(
+		angle,
+		delay,
+		repeat,
+		saveImages = false,
+		imageDirectory = path.join(__dirname, 'images'),
+	) {
+		if (!this.#ready) throw new Error('Converter not ready yet!');
 
 		let pictures = 360 / angle;
+		let images = [];
 
 		for (let i = 0; i < pictures; i++) {
 			this.#stlRenderer.rotateMeshZ(angle);
 
+			console.debug('rendering frame ' + i);
 			let image = this.#stlRenderer.renderImage();
-			this.#pngConverter.convertToPNG(`images/frame${i}.png`, image);
-			console.log('rendering frame ' + i);
+			images.push(image);
+
+			if (saveImages) {
+				fs.mkdir(imageDirectory, undefined, (err) => {
+					console.error(err);
+				});
+				this.#pngConverter.convertToPNG(`images/frame${i}.png`, image);
+			}
 		}
 
-		setTimeout(() => {
-			this.#gifConverter.createGif(
-				'images',
-				'finish.gif',
-				pictures,
-				true,
-			);
-		}, 5000);
+		return this.#gifConverter.convertToGIF(
+			this.out,
+			images,
+			this.width,
+			this.height,
+			delay,
+			repeat,
+		);
 	}
 
 	getReady() {

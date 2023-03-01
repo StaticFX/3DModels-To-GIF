@@ -1,6 +1,4 @@
 const THREE = require('three');
-const { WebGLRenderer } = require('three');
-const { Canvas } = require('canvas');
 const fs = require('fs');
 const path = require('path');
 
@@ -118,12 +116,27 @@ class STLRenderer {
 		);
 		mesh.applyMatrix4(new THREE.Matrix4().makeRotationZ(-Math.PI));
 
-		var largestDimension = Math.max(
-			geometry.boundingBox.max.x,
-			geometry.boundingBox.max.y,
-			geometry.boundingBox.max.z,
-		);
-		camera.position.z = largestDimension * 1.5 * 1.5;
+		const padding = 1.5;
+
+		const box = new THREE.Box3().setFromObject(mesh);
+		const center = box.getCenter(new THREE.Vector3());
+		const size = box.getSize(new THREE.Vector3());
+
+		const maxDim = Math.max(size.x, size.y, size.z); //maximum width of the object
+		const fov = camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
+		let distance = maxDim / (2 * Math.tan(fov / 2)); //devide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
+
+		distance *= padding;
+
+		const direction = camera.position
+			.clone()
+			.sub(center)
+			.normalize()
+			.multiplyScalar(distance);
+		camera.position.copy(center).add(direction);
+
+		camera.near = maxDim / 100;
+		camera.far = distance * 3;
 
 		this.scene.add(mesh);
 		this.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
