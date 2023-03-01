@@ -7,13 +7,14 @@ class STLRenderer {
 	#renderer = null;
 	#camera = null;
 
-	constructor(stl, gl, width, height) {
+	constructor(stl, gl, width, height, color) {
 		this.stl = stl;
 		this.scene = new THREE.Scene();
 		this.gl = gl;
 		this.width = width;
 		this.height = height;
 		this.loaded = false;
+		this.color = color;
 		this.#loadMesh();
 	}
 
@@ -96,7 +97,7 @@ class STLRenderer {
 		const geometry = loader.parse(stlData);
 
 		const material = new THREE.MeshPhongMaterial({
-			color: 0xffffff,
+			color: this.color,
 			shininess: 1,
 		});
 
