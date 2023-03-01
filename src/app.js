@@ -1,15 +1,10 @@
-const fs = require("fs");
-const path = require('path');
-var headlessGL = require('gl');
-var express = require('express')
+require('dotenv').config();
+const express = require('express');
 
-const { PNGConverter } = require('./pngconverter.js');
-const { STLRenderer } = require('./stlrenderer');
-const { GIFConverter } = require('./gifconverter');
+const app = express();
 
-const port = 3000
-var app = express()
-app.listen(port, ()=> { console.log("Port listening at 3000") })
-app.get('/', function(req, res) {})
+app.get('/', function (req, res) {});
 
-
+app.listen(process.env.PORT, () =>
+	console.log(`Listening on port ${process.env.PORT}`),
+);
