@@ -9,7 +9,6 @@
   "author": "Devin Fritz",
   "license": "MIT",
   "dependencies": {
-    "canvas": "^2.11.0",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "fs-extra": "^11.1.0",
@@ -18,7 +17,6 @@
     "node": "^19.6.1",
     "png-file-stream": "^1.2.1",
     "pngjs": "^7.0.0",
-    "three": "^0.150.1",
-    "three-stl-loader": "^1.0.6"
+    "three": "^0.150.1"
   }
 }
