@@ -10,7 +10,7 @@ class GIFConverter {
     }
 
     createGif(inPath, out, pictures, deleteDir) {
-        const stream = pngFileStream(inPath + "/frame??.png").pipe(this.gifencoder.createWriteStream( { repeat: 1, delay: 10, quality: pictures })).pipe(fs.createWriteStream(out))
+        const stream = pngFileStream(inPath + "/frame*.png").pipe(this.gifencoder.createWriteStream( { repeat: 1, delay: 10, quality: pictures })).pipe(fs.createWriteStream(out))
 
         stream.on('finish', () => { 
             if(deleteDir) fsextra.emptyDirSync("images");

@@ -6,8 +6,8 @@ class PNGConverter {
     constructor(gl) {
         this.gl = gl;
     }
-
-    async convertToPNG(outputPath, imageData) {
+    
+    convertToPNG(outputPath, imageData) {
         const gl = this.gl;
         const png = new PNG({ width: gl.drawingBufferWidth, height: gl.drawingBufferHeight });
 
@@ -20,8 +20,18 @@ class PNGConverter {
             png.data[i + 3] = imageData[i + 3];
           }
         }
-      
+        
         png.pack().pipe(fs.createWriteStream(outputPath));
+
+        return new Promise((resolve, reject) => {
+          png.pack().pipe(writeStream);
+          writeStream.on('finish', () => {
+            resolve();
+          });
+          writeStream.on('error', (err) => {
+            reject(err);
+          });
+        });
     }
 }
 
