@@ -6,24 +6,28 @@ const fs = require('fs');
 const path = require('path');
 
 class STLToGIFConverter {
+	#ready = false;
+	#pngConverter = null;
+	#stlRenderer = null;
+	#gifConverter = null;
+	#gl = null;
 
-    #ready = false
-    #pngConverter = null
-    #stlRenderer = null
-    #gifConverter = null
-    #gl = null
+	constructor(stl, out, width, height) {
+		this.stl = stl;
+		this.out = out;
+		this.width = width;
+		this.height = height;
+		this.#gl = new GL(width, height);
+		this.#pngConverter = new PNGConverter(this.#gl);
+		this.#stlRenderer = new STLRenderer(stl, this.#gl, width, height);
+		this.#gifConverter = new GIFConverter(width, height);
+		this.#setup();
+	}
 
-    constructor(stl, out, width, height) {
-        this.stl = stl;
-        this.out = out;
-        this.width = width;
-        this.height = height;
-        this.#gl = new GL(width, height);
-        this.#pngConverter = new PNGConverter(this.#gl);
-        this.#stlRenderer = new STLRenderer(stl, this.#gl, width, height);
-        this.#gifConverter = new GIFConverter(width, height);
-        this.#setup();
-    }
+	async #setup() {
+		await waitUntilTrue(() => renderer.loaded);
+		this.#ready = true;
+	}
 
     async #setup() {
         await this.#waitUntilTrue(() => renderer.loaded);
@@ -63,8 +67,19 @@ class STLToGIFConverter {
         return this.#gifConverter.convertToGIF(out, images, this.width, this.height, delay, repeat);
     } 
 
-    getReady() { return this.#ready }
+		setTimeout(() => {
+			this.#gifConverter.createGif(
+				'images',
+				'finish.gif',
+				pictures,
+				true,
+			);
+		}, 5000);
+	}
 
+	getReady() {
+		return this.#ready;
+	}
 }
 
-module.exports = { STLToGIFConverter }
+module.exports = { STLToGIFConverter };
