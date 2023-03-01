@@ -1,6 +1,6 @@
-const { PNGConverter } = require('./pngconverter.js');
-const { STLRenderer } = require('./stlrenderer');
-const { GIFConverter } = require('./gifconverter');
+const { PNGConverter } = require('./util/pngconverter.js');
+const { STLRenderer } = require('./util/stlrenderer.js');
+const { GIFConverter } = require('./util/gifconverter.js');
 const GL = require('gl');
 
 class STLToGIFConverter {
@@ -23,7 +23,7 @@ class STLToGIFConverter {
 	}
 
 	async #setup() {
-		await waitUntilTrue(() => renderer.loaded);
+		await this.#waitUntilTrue(() => renderer.loaded);
 		this.#ready = true;
 	}
 
