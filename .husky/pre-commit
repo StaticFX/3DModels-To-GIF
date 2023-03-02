@@ -1,8 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run format
-
-echo '✅Everthing formatted. Stagging new formatted Files'
-
-git add .
+npx lint-staged
