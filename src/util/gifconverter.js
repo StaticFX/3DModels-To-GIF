@@ -7,10 +7,9 @@ const fsextra = require('fs-extra');
  * Uitl Class to convert imageData into a gif file
  */
 class GIFConverter {
-
 	/**
-	 * @param {int} width 
-	 * @param {int} heigth 
+	 * @param {int} width
+	 * @param {int} heigth
 	 */
 	constructor(width, heigth) {
 		this.gifencoder = new GIFEncoder(width, heigth);
@@ -28,16 +27,16 @@ class GIFConverter {
 	 */
 
 	/**
-	 * Converts the given parameters into a gif 
-	 * 
+	 * Converts the given parameters into a gif
+	 *
 	 * If the stream parameter is supplied, it will instead of outputting a file directly write to the provided stream.
-	 * 
+	 *
 	 * @param {string} outputPath of the gif
 	 * @param {Uint8Array[]} imageDataArray imageDataArray containing all frames for the gif
 	 * @param {int} delay in between each frame in ms
 	 * @param {int} repeat -1 for none, 0 for infinity >0 for fixxed value
-	 * @param {ProgressUpdater} progress 
-	 * @param {ProgressFinisher} done 
+	 * @param {ProgressUpdater} progress
+	 * @param {ProgressFinisher} done
 	 * @param {Number} renderTransparent color to display transparent
 	 * @param {dataStream} dataStream if supplied it will write the gif to this stream
 	 * @returns promise resolved when the gif is finished
@@ -47,10 +46,10 @@ class GIFConverter {
 		imageDataArray,
 		delay = 100,
 		repeat,
-		progress = (progress) => { },
-		done = () => { },
+		progress = (progress) => {},
+		done = () => {},
 		renderTransparent = undefined,
-		dataStream = undefined
+		dataStream = undefined,
 	) {
 		console.debug('Converting images into .gif');
 		const encoder = new GIFEncoder(
@@ -61,8 +60,8 @@ class GIFConverter {
 			imageDataArray.length,
 		);
 
-		let stream 
-		
+		let stream;
+
 		if (dataStream != undefined) {
 			encoder.pipe(dataStream);
 			stream = dataStream;

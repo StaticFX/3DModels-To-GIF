@@ -17,7 +17,6 @@ class STLToGIFConverter {
 	 */
 	#ready = false;
 
-
 	/**
 	 * @type {PNGConverter}
 	 */
@@ -79,8 +78,8 @@ class STLToGIFConverter {
 
 	/**
 	 * Generates a .gif file from the given parameters
-	 * 
-	 * 
+	 *
+	 *
 	 * @param {int} angle in degrees, rotation per frame of the model
 	 * @param {int} delay ms between every frame
 	 * @param {int} repeat how often the gif should repeat. -1 for none, 0 for infinite >0 for set repeat
@@ -100,8 +99,12 @@ class STLToGIFConverter {
 		bgColor = 0x0,
 		saveImages = false,
 		imageDirectory = path.join(__dirname, 'images'),
-		progress = (progress) => { console.debug("Generating GIF:", progress, "%") },
-		done = () => { console.debug("Finished generating GIF") }
+		progress = (progress) => {
+			console.debug('Generating GIF:', progress, '%');
+		},
+		done = () => {
+			console.debug('Finished generating GIF');
+		},
 	) {
 		if (!this.#ready) throw new Error('Converter not ready yet!');
 
@@ -125,11 +128,11 @@ class STLToGIFConverter {
 			}
 		}
 
-		let bg
+		let bg;
 		if (transparent) {
-			bg = bgColor
+			bg = bgColor;
 		} else {
-			bg = undefined
+			bg = undefined;
 		}
 
 		return this.#gifConverter.convertToGIF(
@@ -139,7 +142,7 @@ class STLToGIFConverter {
 			repeat,
 			progress,
 			done,
-			bg
+			bg,
 		);
 	}
 

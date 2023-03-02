@@ -37,7 +37,7 @@ class STLRenderer {
 		);
 		return imgData;
 	}
-	
+
 	setSceneBackgroundColor(color) {
 		this.scene.background = new THREE.Color(color);
 	}
@@ -127,7 +127,8 @@ class STLRenderer {
 		const center = box.getCenter(new THREE.Vector3());
 		const size = box.getSize(new THREE.Vector3());
 
-		const boxDiagonalSq = Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2) // the room diagonal of the bounding box of the mesh
+		const boxDiagonalSq =
+			Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
 		const maxDim = Math.sqrt(boxDiagonalSq); //maximum width of the object
 		const fov = camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
 		let distance = maxDim / (2 * Math.tan(fov / 2)); //devide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out

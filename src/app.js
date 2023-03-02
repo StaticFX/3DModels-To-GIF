@@ -23,9 +23,9 @@ renderTest();
 async function renderTest() {
 	await waitUntilTrue(() => converter.getReady());
 
-  const transparent = true;
-  const backGroundColor = 0x0;
-  const anglePerFrame = 10;
+	const transparent = true;
+	const backGroundColor = 0x0;
+	const anglePerFrame = 10;
 
 	converter.generateGIF(anglePerFrame, 100, 0, transparent, backGroundColor);
 }
