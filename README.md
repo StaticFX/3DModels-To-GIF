@@ -4,7 +4,13 @@ Creates a GIF of a supported 3D File with rotation around its axis.
 
 ## Examples
 
-<img src="https://github.com/StaticFX/3DModels-To-GIF/blob/master/examples/example.gif?raw=true" width="250" height="250" />
+<p align="left">
+    <img src="https://github.com/StaticFX/3DModels-To-GIF/blob/master/examples/example-cat.gif?raw=true" width="200" height="200" />
+    <img src="https://github.com/StaticFX/3DModels-To-GIF/blob/master/examples/example-eiffel-tower.gif?raw=true" width="200" height="200" />
+    <img src="https://github.com/StaticFX/3DModels-To-GIF/blob/master/examples/example-moai.gif?raw=true" width="200" height="200" />
+</p>
+
+
 
 ## Supported File Types
 
