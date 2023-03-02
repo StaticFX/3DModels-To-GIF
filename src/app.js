@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const { waitUntilTrue } = require('./util/Util.js');
 const { STLToGIFConverter } = require('./STLToGIFConverter.js');
+const path = require('path');
 
 const app = express();
 
@@ -12,11 +13,11 @@ app.listen(process.env.PORT, () =>
 );
 
 const converter = new STLToGIFConverter(
-	'../../resources/cat.stl',
+	path.resolve('./resources/infinity.stl'),
 	'examples/example.gif',
 	512,
 	512,
-	0xffffff,
+	0xff00ff,
 );
 renderTest();
 
