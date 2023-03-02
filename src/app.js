@@ -13,7 +13,7 @@ app.listen(process.env.PORT, () =>
 
 const converter = new STLToGIFConverter(
 	'../../resources/infinity.stl',
-	'finished.gif',
+	'resources/finished.gif',
 	512,
 	512,
 	0xffffff,

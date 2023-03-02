@@ -3,40 +3,85 @@ const pngFileStream = require('png-file-stream');
 const fs = require('fs');
 const fsextra = require('fs-extra');
 
+/**
+ * Uitl Class to convert imageData into a gif file
+ */
 class GIFConverter {
+
+	/**
+	 * @param {int} width 
+	 * @param {int} heigth 
+	 */
 	constructor(width, heigth) {
 		this.gifencoder = new GIFEncoder(width, heigth);
+		this.width = width;
+		this.height = heigth;
 	}
 
+	/**
+	 * @callback ProgressUpdater executed everytime the progress of the process changes
+	 * @param {Number} progress percentage in % (0-100)
+	 */
+
+	/**
+	 * @callback ProgressFinisher executed as soon as the process is finished generating
+	 */
+
+	/**
+	 * Converts the given parameters into a gif 
+	 * 
+	 * If the stream parameter is supplied, it will instead of outputting a file directly write to the provided stream.
+	 * 
+	 * @param {string} outputPath of the gif
+	 * @param {Uint8Array[]} imageDataArray imageDataArray containing all frames for the gif
+	 * @param {int} delay in between each frame in ms
+	 * @param {int} repeat -1 for none, 0 for infinity >0 for fixxed value
+	 * @param {ProgressUpdater} progress 
+	 * @param {ProgressFinisher} done 
+	 * @param {Number} renderTransparent color to display transparent
+	 * @param {dataStream} dataStream if supplied it will write the gif to this stream
+	 * @returns promise resolved when the gif is finished
+	 */
 	async convertToGIF(
 		outputPath,
 		imageDataArray,
-		width,
-		height,
 		delay = 100,
 		repeat,
+		progress = (progress) => { },
+		done = () => { },
+		renderTransparent = undefined,
+		dataStream = undefined
 	) {
-		console.debug('Convert images into .gif');
+		console.debug('Converting images into .gif');
 		const encoder = new GIFEncoder(
-			width,
-			height,
+			this.width,
+			this.height,
 			undefined,
 			undefined,
 			imageDataArray.length,
 		);
 
-		const fileStream = fs.createWriteStream(outputPath);
-		encoder.createReadStream().pipe(fileStream);
+		let stream 
+		
+		if (dataStream != undefined) {
+			encoder.pipe(dataStream);
+			stream = dataStream;
+		} else {
+			const fileStream = fs.createWriteStream(outputPath);
+			encoder.createReadStream().pipe(fileStream);
+			stream = fileStream;
+		}
 
 		encoder.start();
 		encoder.setDelay(delay);
 		encoder.setRepeat(repeat);
 		encoder.useOptimizer = true;
 		encoder.setThreshold(0);
-		encoder.setTransparent(0x000000);
+		if (renderTransparent != undefined)
+			encoder.setTransparent(renderTransparent);
 
 		encoder.on('progress', (percent) => {
-			console.debug('Generating gif >> ' + percent + '%');
+			progress(percent);
 		});
 
 		for (const frame of imageDataArray) {
@@ -46,10 +91,11 @@ class GIFConverter {
 		encoder.finish();
 
 		return new Promise((resolve, reject) => {
-			fileStream.on('finish', () => {
+			stream.on('finish', () => {
+				done();
 				resolve('Done');
 			});
-			fileStream.on('error', (error) => {
+			stream.on('error', (error) => {
 				reject(error);
 			});
 		});

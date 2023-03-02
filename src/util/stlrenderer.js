@@ -37,6 +37,10 @@ class STLRenderer {
 		);
 		return imgData;
 	}
+	
+	setSceneBackgroundColor(color) {
+		this.scene.background = new THREE.Color(color);
+	}
 
 	rotateMeshX(angleDeg) {
 		let rad = THREE.MathUtils.degToRad(angleDeg);
