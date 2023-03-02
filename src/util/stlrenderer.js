@@ -1,6 +1,7 @@
 const THREE = require('three');
 const fs = require('fs');
 const path = require('path');
+const { STLLoader } = require('../loader/stlloader');
 
 class STLRenderer {
 	#mesh = null;
@@ -61,10 +62,6 @@ class STLRenderer {
 	}
 
 	async #loadMesh() {
-		const { STLLoader } = await import(
-			'three/examples/jsm/loaders/STLLoader.js'
-		);
-
 		const canvas = {
 			width: this.width,
 			height: this.height,
@@ -96,16 +93,12 @@ class STLRenderer {
 		camera.position.z = 3;
 
 		const loader = new STLLoader();
-		const stlFile = fs.readFileSync(path.join(__dirname, this.stl));
-		const stlData = new Uint8Array(stlFile).buffer;
-		const geometry = loader.parse(stlData);
-
-		const material = new THREE.MeshPhongMaterial({
+		const mesh = await loader.load(this.stl);
+		mesh.material = new THREE.MeshPhongMaterial({
 			color: this.color,
 			shininess: 1,
 		});
-
-		const mesh = new THREE.Mesh(geometry, material);
+		const geometry = mesh.geometry;
 		mesh.rotateX(-45); // Rotate correctly
 
 		//center the model and focus the camera
