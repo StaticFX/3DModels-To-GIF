@@ -13,11 +13,11 @@ app.listen(process.env.PORT, () =>
 );
 
 const converter = new STLToGIFConverter(
-	path.resolve('./resources/infinity.stl'),
-	'examples/example.gif',
+	path.resolve('./resources/eiffel_tower.stl'),
+	'examples/example-eiffel-tower.gif',
 	512,
 	512,
-	0xff00ff,
+	0x636363,
 );
 renderTest();
 
