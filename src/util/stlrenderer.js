@@ -121,13 +121,14 @@ class STLRenderer {
 		);
 		mesh.applyMatrix4(new THREE.Matrix4().makeRotationZ(-Math.PI));
 
-		const padding = 1.5;
+		const padding = 1;
 
 		const box = new THREE.Box3().setFromObject(mesh);
 		const center = box.getCenter(new THREE.Vector3());
 		const size = box.getSize(new THREE.Vector3());
 
-		const maxDim = Math.max(size.x, size.y, size.z); //maximum width of the object
+		const boxDiagonalSq = Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2) // the room diagonal of the bounding box of the mesh
+		const maxDim = Math.sqrt(boxDiagonalSq); //maximum width of the object
 		const fov = camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
 		let distance = maxDim / (2 * Math.tan(fov / 2)); //devide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
 
@@ -144,7 +145,7 @@ class STLRenderer {
 		camera.far = distance * 3;
 
 		this.scene.add(mesh);
-		this.scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+		this.scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 		this.scene.add(new THREE.HemisphereLight(0xffffff, 0.2));
 
 		this.loaded = true;
