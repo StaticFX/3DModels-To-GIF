@@ -3,23 +3,25 @@ const express = require('express');
 const { waitUntilTrue } = require('./util/Util.js');
 const { STLToGIFConverter } = require('./STLToGIFConverter.js');
 const path = require('path');
+const { createGifRouter } = require('./endpoints/createGif.js');
 
 const app = express();
 
-app.get('/', function (req, res) {});
+app.use(express.json());
+app.use('/create', createGifRouter);
 
 app.listen(process.env.PORT, () =>
 	console.log(`Listening on port ${process.env.PORT}`),
 );
 
 const converter = new STLToGIFConverter(
-	path.resolve('./resources/eiffel_tower.stl'),
+	path.resolve('./resources/test.stl'),
 	'examples/example-eiffel-tower.gif',
 	512,
 	512,
 	0x636363,
 );
-renderTest();
+// renderTest();
 
 async function renderTest() {
 	await waitUntilTrue(() => converter.getReady());
