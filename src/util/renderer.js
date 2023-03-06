@@ -123,29 +123,44 @@ class Renderer {
 		return axisVector;
 	}
 
-	#positionCamera(padding = 1) {
-		const box = new THREE.Box3().setFromObject(this.#parent);
-		const center = box.getCenter(new THREE.Vector3());
-		const size = box.getSize(new THREE.Vector3());
+	#positionCamera(padding = 0) {
+		// const box = new THREE.Box3().setFromObject(this.#parent);
+		// const center = box.getCenter(new THREE.Vector3());
+		// const size = box.getSize(new THREE.Vector3());
 
-		const boxDiagonalSq =
-			Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
-		const maxDimension = Math.sqrt(boxDiagonalSq); //maximum width of the object
-		const fovDegrees = this.#camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
-		let distance = maxDimension / (2 * Math.tan(fovDegrees / 2)); //divide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
+		// const boxDiagonalSq =
+		// 	Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
+		// const maxDimension = Math.sqrt(boxDiagonalSq); //maximum width of the object
+		// const fovDegrees = this.#camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
+		// let distance = maxDimension / (2 * Math.tan(fovDegrees / 2)); //divide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
 
-		distance *= padding; //apply padding around it
+		// distance *= padding; //apply padding around it
 
-		const direction = this.#camera.position
-			.clone()
-			.sub(center)
-			.normalize()
-			.multiplyScalar(distance);
+		// const direction = this.#camera.position
+		// 	.clone()
+		// 	.sub(center)
+		// 	.normalize()
+		// 	.multiplyScalar(distance);
 
-		this.#camera.position.copy(center).add(direction);
+		// this.#camera.position.copy(center).add(direction);
 
-		this.#camera.near = maxDimension / 100;
-		this.#camera.far = distance * 3;
+		// this.#camera.near = maxDimension / 100;
+		// this.#camera.far = distance * 3;
+
+		const boundingBox = new THREE.Box3().setFromObject(this.#parent);
+		const center = boundingBox.getCenter(new THREE.Vector3());
+		const size = boundingBox.getSize(new THREE.Vector3());
+		const maxSide = Math.max(size.x, size.y, size.z);
+		const maxDimension = Math.sqrt(
+			Math.pow(maxSide, 2) + Math.sqrt(maxSide, 2),
+		);
+		const distance =
+			maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
+		this.#camera.position.set(
+			center.x,
+			center.y,
+			center.z + distance + padding,
+		);
 	}
 }
 
