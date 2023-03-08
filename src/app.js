@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const { waitUntilTrue } = require('./util/Util.js');
 const { STLToGIFConverter } = require('./STLToGIFConverter.js');
 const path = require('path');
 
@@ -13,8 +12,8 @@ app.listen(process.env.PORT, () =>
 );
 
 const converter = new STLToGIFConverter(
-	path.resolve('./resources/eiffel_tower.stl'),
-	'examples/example-eiffel-tower.gif',
+	path.resolve('resources/wolf.stl'),
+	path.resolve('resources/test.gif'),
 	512,
 	512,
 	0x636363,
@@ -22,11 +21,15 @@ const converter = new STLToGIFConverter(
 renderTest();
 
 async function renderTest() {
-	await waitUntilTrue(() => converter.getReady());
-
 	const transparent = true;
-	const backGroundColor = 0x0;
+	const backGroundColor = 0x1;
 	const anglePerFrame = 10;
 
-	converter.generateGIF(anglePerFrame, 100, 0, transparent, backGroundColor);
+	await converter.generateGIF(
+		anglePerFrame,
+		100,
+		0,
+		transparent,
+		backGroundColor,
+	);
 }

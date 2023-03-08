@@ -1,9 +1,9 @@
 const { PNGConverter } = require('./util/PNGConverter.js');
-const { STLRenderer } = require('./util/STLRenderer.js');
 const { GIFConverter } = require('./util/GIFConverter.js');
-const { waitUntilTrue } = require('./util/Util.js');
 const GL = require('gl');
 const path = require('path');
+const { Renderer } = require('./util/renderer.js');
+const { STLLoader } = require('./loader/stlloader.js');
 
 /**
  * Wrapper class to easily generate a 3D Gif from the given STL.
@@ -23,9 +23,9 @@ class STLToGIFConverter {
 	#pngConverter = null;
 
 	/**
-	 * @type {STLRenderer}
+	 * @type {Renderer}
 	 */
-	#stlRenderer = null;
+	#renderer = null;
 
 	/**
 	 * @type {GIFConverter}
@@ -38,33 +38,22 @@ class STLToGIFConverter {
 	#gl = null;
 
 	/**
-	 * @param {String} stl path of the stl
-	 * @param {String} out output path of the finished gif
+	 * @param {String} filePath path of the file (absolute)
+	 * @param {String} outPath output path of the finished gif (absolute)
 	 * @param {int} width width of the finished gif
 	 * @param {int} height height of the finished gif
 	 * @param {number} color hex of the color
 	 */
-	constructor(stl, out, width, height, color) {
-		this.stl = stl;
-		this.out = out;
+	constructor(filePath, outPath, width, height, color) {
+		this.filePath = filePath;
+		this.outPath = outPath;
 		this.width = width;
 		this.height = height;
+		this.color = color;
 		this.#gl = new GL(width, height);
 		this.#pngConverter = new PNGConverter(this.#gl);
-		this.#stlRenderer = new STLRenderer(
-			stl,
-			this.#gl,
-			width,
-			height,
-			color,
-		);
+		this.#renderer = new Renderer(this.#gl, width, height);
 		this.#gifConverter = new GIFConverter(width, height);
-		this.#setup();
-	}
-
-	async #setup() {
-		await waitUntilTrue(() => this.#stlRenderer.loaded);
-		this.#ready = true;
 	}
 
 	/**
@@ -106,18 +95,23 @@ class STLToGIFConverter {
 			console.debug('Finished generating GIF');
 		},
 	) {
-		if (!this.#ready) throw new Error('Converter not ready yet!');
+		await this.#renderer.addObject(
+			this.filePath,
+			new STLLoader(),
+			this.color,
+		);
 
 		let pictures = 360 / angle;
 		let images = [];
 
-		this.#stlRenderer.setSceneBackgroundColor(bgColor);
+		this.#renderer.setSceneBackgroundColor(bgColor);
+		this.#renderer.rotateScene('x', 90);
 
 		for (let i = 0; i < pictures; i++) {
-			this.#stlRenderer.rotateMeshZ(angle);
+			this.#renderer.rotateScene('y', angle);
 
 			console.debug('Rendering frame', i);
-			let image = this.#stlRenderer.renderImage();
+			let image = this.#renderer.renderImage();
 			images.push(image);
 
 			if (saveImages) {
@@ -136,7 +130,7 @@ class STLToGIFConverter {
 		}
 
 		return this.#gifConverter.convertToGIF(
-			this.out,
+			this.outPath,
 			images,
 			delay,
 			repeat,
@@ -144,15 +138,6 @@ class STLToGIFConverter {
 			done,
 			bg,
 		);
-	}
-
-	/**
-	 * The converter needs to load in the model of the .stl file and needs a bit of time to be ready.
-	 * @returns whether the converter is ready yet or not
-	 * @see waitUntilTrue
-	 */
-	getReady() {
-		return this.#ready;
 	}
 }
 
