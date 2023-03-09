@@ -14,8 +14,8 @@ app.listen(process.env.PORT, () =>
 );
 
 const converter = new STLToGIFConverter(
-	path.resolve('./resources/test.stl'),
-	'examples/example-eiffel-tower.gif',
+	path.resolve('resources/wolf.stl'),
+	path.resolve('resources/test.gif'),
 	512,
 	512,
 	0x636363,
