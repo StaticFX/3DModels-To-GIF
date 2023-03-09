@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const { waitUntilTrue } = require('./util/Util.js');
 const { STLToGIFConverter } = require('./STLToGIFConverter.js');
 const path = require('path');
 const { createGifRouter } = require('./endpoints/createGif.js');
@@ -24,11 +23,15 @@ const converter = new STLToGIFConverter(
 // renderTest();
 
 async function renderTest() {
-	await waitUntilTrue(() => converter.getReady());
-
 	const transparent = true;
-	const backGroundColor = 0x0;
+	const backGroundColor = 0x1;
 	const anglePerFrame = 10;
 
-	converter.generateGIF(anglePerFrame, 100, 0, transparent, backGroundColor);
+	await converter.generateGIF(
+		anglePerFrame,
+		100,
+		0,
+		transparent,
+		backGroundColor,
+	);
 }
