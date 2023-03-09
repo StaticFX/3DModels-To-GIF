@@ -1,15 +1,14 @@
 const { Router } = require('express');
+const fs = require('fs').promises;
 const multer = require('multer');
 const path = require('path');
-const { z } = require('zod');
 const { createSchema } = require('../schema/create');
 const { STLToGIFConverter } = require('../STLToGIFConverter');
-const { waitUntilTrue } = require('../util/Util');
 
 const createGifRouter = new Router();
 
 const storage = multer.diskStorage({
-	destination: 'resources/',
+	destination: process.env.UPLOAD_DIRECTORY + '/',
 	filename: (_, file, callback) => {
 		const fileType = path.extname(file.originalname);
 		callback(null, crypto.randomUUID() + fileType);
@@ -29,25 +28,41 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 	}
 
 	const filePath = path.resolve(req.file.path);
+	const outPath = path.resolve(
+		`${process.env.OUTPUT_DIRECTORY}/${options.name}.gif`,
+	);
+
 	const converter = new STLToGIFConverter(
 		filePath,
-		`examples/${options.name}.gif`,
+		outPath,
 		options.width,
 		options.height,
 		options.objectColor,
 	);
 
-	await waitUntilTrue(() => converter.getReady());
+	try {
+		await converter.generateGIF(
+			options.anglePerFrame,
+			options.delay,
+			options.loop,
+			options.transparent,
+			options.backgroundColor,
+		);
 
-	converter.generateGIF(
-		options.anglePerFrame,
-		options.delay,
-		options.loop,
-		options.transparent,
-		options.backgroundColor,
-	);
+		res.set('Content-Type', 'image/gif');
 
-	return res.status(200).send('Creating gif');
+		await new Promise((resolve, reject) => {
+			res.status(200).sendFile(outPath, (err) =>
+				err ? reject(err) : resolve(),
+			);
+		});
+
+		const removeGeneratedFile = fs.unlink(outPath);
+		const removeInitialFile = fs.unlink(filePath);
+		await Promise.all([removeGeneratedFile, removeInitialFile]);
+	} catch (err) {
+		console.debug(err);
+	}
 });
 
 module.exports = { createGifRouter };
