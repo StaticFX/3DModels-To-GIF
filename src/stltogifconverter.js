@@ -1,5 +1,5 @@
 const { PNGConverter } = require('./util/PNGConverter.js');
-const { GIFConverter } = require('./util/GIFConverter.js');
+const { GifConverter } = require('./util/GifConverter.js');
 const GL = require('gl');
 const path = require('path');
 const { Renderer } = require('./util/renderer.js');
@@ -28,7 +28,7 @@ class STLToGIFConverter {
 	#renderer = null;
 
 	/**
-	 * @type {GIFConverter}
+	 * @type {GifConverter}
 	 */
 	#gifConverter = null;
 
@@ -53,7 +53,7 @@ class STLToGIFConverter {
 		this.#gl = new GL(width, height);
 		this.#pngConverter = new PNGConverter(this.#gl);
 		this.#renderer = new Renderer(this.#gl, width, height);
-		this.#gifConverter = new GIFConverter(width, height);
+		this.#gifConverter = new GifConverter(width, height, outPath);
 	}
 
 	/**
@@ -129,15 +129,13 @@ class STLToGIFConverter {
 			bg = undefined;
 		}
 
-		return this.#gifConverter.convertToGIF(
-			this.outPath,
-			images,
+		return this.#gifConverter.convertToGif(images, {
 			delay,
 			repeat,
-			progress,
-			done,
-			bg,
-		);
+			cbProgress: progress,
+			transparent: bg,
+			cbFinish: done,
+		});
 	}
 }
 
