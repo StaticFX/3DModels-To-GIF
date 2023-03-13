@@ -93,7 +93,7 @@ class GifConverter {
 			options.transparent ?? GifConverter.BASE_TRANSPARENT,
 		);
 		encoder.setThreshold(options.threshold ?? GifConverter.BASE_THRESHOLD);
-		encoder.on('progress', options.cbProgress);
+		encoder.on('progress', options.cbProgress || (() => {}));
 
 		encoder.start();
 

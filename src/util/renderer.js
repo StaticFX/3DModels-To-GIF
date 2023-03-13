@@ -1,4 +1,5 @@
 const THREE = require('three');
+const { Loader } = require('../loader/loader');
 
 class Renderer {
 	static BASE_FOV = 75;
@@ -52,6 +53,12 @@ class Renderer {
 		this.#scene.add(this.#camera);
 	}
 
+	/**
+	 *
+	 * @param {string} filePath absolute path to the fil
+	 * @param {Loader} loader loader for a given fileType
+	 * @param {number} color color value to tint the object
+	 */
 	async addObject(filePath, loader, color) {
 		const mesh = await loader.load(filePath, this.#parent);
 

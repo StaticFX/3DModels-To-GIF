@@ -2,8 +2,9 @@ const { Router } = require('express');
 const fs = require('fs').promises;
 const multer = require('multer');
 const path = require('path');
+const { PassThrough } = require('stream');
+const { GifCreator } = require('../gifCreator');
 const { createSchema } = require('../schema/create');
-const { STLToGIFConverter } = require('../STLToGIFConverter');
 
 const createGifRouter = new Router();
 
@@ -32,36 +33,39 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 		`${process.env.OUTPUT_DIRECTORY}/${options.name}.gif`,
 	);
 
-	const converter = new STLToGIFConverter(
-		filePath,
-		outPath,
-		options.width,
-		options.height,
-		options.objectColor,
-	);
-
+	const gifCreator = new GifCreator(outPath, options.width, options.height);
 	try {
-		await converter.generateGIF(
-			options.anglePerFrame,
-			options.delay,
-			options.loop,
-			options.transparent,
-			options.backgroundColor,
-		);
-
-		res.set('Content-Type', 'image/gif');
-
-		await new Promise((resolve, reject) => {
-			res.status(200).sendFile(outPath, (err) =>
-				err ? reject(err) : resolve(),
-			);
-		});
-
-		const removeGeneratedFile = fs.unlink(outPath);
-		const removeInitialFile = fs.unlink(filePath);
-		await Promise.all([removeGeneratedFile, removeInitialFile]);
+		await gifCreator.addFile(filePath, options.objectColor);
 	} catch (err) {
 		console.debug(err);
+		fs.unlink(filePath);
+		return res.status(400).send({ error: err.toString() });
+	}
+
+	try {
+		const stream = new PassThrough();
+
+		res.set('Content-Type', 'image/gif');
+		res.set(
+			'Content-Disposition',
+			`Content-Disposition: attachment; filename="${options.name}.gif"`,
+		);
+		stream.pipe(res);
+
+		await gifCreator.generateGif({
+			angle: options.anglePerFrame,
+			axis: 'y',
+			dataStream: stream,
+			repeat: options.loop,
+			background: options.backgroundColor,
+			delay: options.delay,
+			transparent: options.transparent,
+		});
+	} catch (err) {
+		console.debug(err);
+		return res.status(400).send({ error: error.toString() });
+	} finally {
+		fs.unlink(filePath);
 	}
 });
 

@@ -1,10 +1,14 @@
 const fs = require('fs').promises;
 const THREE = require('three');
+const { Loader } = require('./loader');
+
 /**
  * Wrapper Class to load .stl files into the scene
  */
-class STLLoader {
-	constructor() {}
+class STLLoader extends Loader {
+	constructor() {
+		super();
+	}
 
 	/**
 	 * Loads a .stl file from a given filepath

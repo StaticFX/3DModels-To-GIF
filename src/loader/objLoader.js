@@ -1,9 +1,13 @@
+const { Loader } = require('./loader');
+
 const fs = require('fs').promises;
 /**
  * Wrapper Class to load .obj files into the scene
  */
-class ObjLoader {
-	constructor() {}
+class ObjLoader extends Loader {
+	constructor() {
+		super();
+	}
 
 	/**
 	 * Loads a .obj file from a given filepath
