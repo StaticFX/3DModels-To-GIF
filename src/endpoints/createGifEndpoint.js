@@ -29,6 +29,9 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 	}
 
 	const filePath = path.resolve(req.file.path);
+	const outPath = path.resolve(
+		`${process.env.OUTPUT_DIRECTORY}/${options.name}.gif`,
+	);
 
 	const gifCreator = new GifCreator(outPath, options.width, options.height);
 	try {

@@ -5,7 +5,9 @@ const fs = require('fs').promises;
  * Wrapper Class to load .obj files into the scene
  */
 class ObjLoader extends Loader {
-	constructor() {}
+	constructor() {
+		super();
+	}
 
 	/**
 	 * Loads a .obj file from a given filepath

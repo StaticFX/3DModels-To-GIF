@@ -1,6 +1,6 @@
 const GL = require('gl');
 const path = require('path');
-const { Loader } = require('./loader/loader');
+const { getLoaderByExtension } = require('./loader/getLoaderByExtension');
 const { GifConverter } = require('./util/GifConverter');
 const { Renderer } = require('./util/renderer');
 
@@ -23,7 +23,7 @@ class GifCreator {
 	addFile(filePath, color) {
 		const extension = path.extname(filePath);
 
-		const loader = Loader.getLoaderByExtension(extension);
+		const loader = getLoaderByExtension(extension);
 
 		return this.#renderer.addObject(filePath, loader, color);
 	}
