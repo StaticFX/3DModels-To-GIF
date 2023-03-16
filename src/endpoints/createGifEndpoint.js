@@ -8,13 +8,7 @@ const { createSchema } = require('../schema/create');
 
 const createGifRouter = new Router();
 
-const storage = multer.diskStorage({
-	destination: process.env.UPLOAD_DIRECTORY + '/',
-	filename: (_, file, callback) => {
-		const fileType = path.extname(file.originalname);
-		callback(null, crypto.randomUUID() + fileType);
-	},
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage });
 
@@ -28,17 +22,14 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 		return res.status(400).send(parsingError.issues);
 	}
 
-	const filePath = path.resolve(req.file.path);
-	const outPath = path.resolve(
-		`${process.env.OUTPUT_DIRECTORY}/${options.name}.gif`,
-	);
-
-	const gifCreator = new GifCreator(outPath, options.width, options.height);
+	const gifCreator = new GifCreator(undefined, options.width, options.height);
 	try {
-		await gifCreator.addFile(filePath, options.objectColor);
+		await gifCreator.addFile(
+			{ buffer: req.file.buffer.buffer, name: req.file.originalname },
+			options.objectColor,
+		);
 	} catch (err) {
 		console.debug(err);
-		fs.unlink(filePath);
 		return res.status(400).send({ error: err.toString() });
 	}
 
@@ -63,9 +54,9 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 		});
 	} catch (err) {
 		console.debug(err);
-		return res.status(400).send({ error: error.toString() });
-	} finally {
-		fs.unlink(filePath);
+		return res
+			.status(500)
+			.send({ error: 'Error while generating the gif' });
 	}
 });
 

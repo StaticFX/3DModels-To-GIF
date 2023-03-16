@@ -1,3 +1,4 @@
+const fs = require('fs').promises;
 const THREE = require('three');
 const { Loader } = require('../loader/loader');
 
@@ -54,24 +55,38 @@ class Renderer {
 	}
 
 	/**
-	 *
-	 * @param {string} filePath absolute path to the fil
+	 * Loads an object into the scene
+	 * @param {string | ArrayBuffer} file absolute path to the file or the file as a buffer
 	 * @param {Loader} loader loader for a given fileType
 	 * @param {number} color color value to tint the object
 	 */
-	async addObject(filePath, loader, color) {
-		const mesh = await loader.load(filePath, this.#parent);
+	async addObject(file, loader, color) {
+		let buffer;
+		if (typeof file === 'string') {
+			const data = await fs.readFile(filepath);
+			buffer = new Uint8Array(data).buffer;
+		} else {
+			buffer = file;
+		}
 
-		mesh.material = new THREE.MeshPhongMaterial({
-			color: color,
+		const object = await loader.load(buffer, this.#parent);
+
+		this.#parent.add(object);
+
+		const material = new THREE.MeshPhongMaterial({
+			color,
 		});
 
-		const geometry = mesh.geometry;
+		this.#parent.traverse((child) => {
+			if (child.hasOwnProperty('material')) {
+				child.material = material;
+			}
+		});
 
+		const box = new THREE.Box3().setFromObject(this.#parent);
 		var middle = new THREE.Vector3();
-		geometry.computeBoundingBox();
-		geometry.boundingBox.getCenter(middle);
-		geometry.applyMatrix4(
+		box.getCenter(middle);
+		this.#parent.applyMatrix4(
 			new THREE.Matrix4().makeTranslation(
 				-middle.x,
 				-middle.y,
@@ -79,7 +94,6 @@ class Renderer {
 			),
 		);
 
-		this.#parent.add(mesh);
 		this.#positionCamera();
 	}
 

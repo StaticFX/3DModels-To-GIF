@@ -1,8 +1,10 @@
 const { Loader } = require('./loader');
-
+const THREE = require('three');
 const fs = require('fs').promises;
+
 /**
  * Wrapper Class to load .obj files into the scene
+ * @extends Loader
  */
 class ObjLoader extends Loader {
 	constructor() {
@@ -11,20 +13,24 @@ class ObjLoader extends Loader {
 
 	/**
 	 * Loads a .obj file from a given filepath
-	 * @param {string} filepath as an absolute path
-	 * @returns {THREE.Group} group of loaded objects which can be added to the scene
 	 */
-	async load(filepath) {
+	async load(fileBuffer, parent) {
 		const { OBJLoader } = await import(
 			'three/examples/jsm/loaders/OBJLoader.js'
 		);
 		this.objLoader = new OBJLoader();
 
-		const data = await fs.readFile(filepath, 'utf8');
+		const uint8array = new Uint8Array(fileBuffer);
+		const decoder = new TextDecoder('utf8');
+		let stringData = decoder.decode(uint8array);
 
-		const objects = this.objLoader.parse(data);
+		const objectGroup = this.objLoader.parse(stringData);
 
-		return objects;
+		const object = new THREE.Object3D();
+
+		objectGroup.children.forEach((child) => object.add(child));
+
+		return object;
 	}
 }
 
