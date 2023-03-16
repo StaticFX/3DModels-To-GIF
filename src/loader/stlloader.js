@@ -1,4 +1,3 @@
-const fs = require('fs').promises;
 const THREE = require('three');
 const { Loader } = require('./loader');
 

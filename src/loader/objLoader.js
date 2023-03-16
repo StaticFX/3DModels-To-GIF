@@ -1,6 +1,5 @@
 const { Loader } = require('./loader');
 const THREE = require('three');
-const fs = require('fs').promises;
 
 /**
  * Wrapper Class to load .obj files into the scene

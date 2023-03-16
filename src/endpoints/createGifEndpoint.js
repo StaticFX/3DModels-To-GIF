@@ -1,5 +1,4 @@
 const { Router } = require('express');
-const fs = require('fs').promises;
 const multer = require('multer');
 const path = require('path');
 const { PassThrough } = require('stream');
