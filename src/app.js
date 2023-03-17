@@ -1,6 +1,5 @@
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
 const { createGifRouter } = require('./endpoints/createGifEndpoint.js');
 
 const app = express();

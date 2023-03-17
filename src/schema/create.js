@@ -15,7 +15,7 @@ const createSchema = z.object({
 		.gte(0)
 		.lte(0xffffff)
 		.optional()
-		.default(0xffffff),
+		.default(0xf00fff),
 	name: z.string().optional(),
 	width: z.number().int().gte(128).lte(2048),
 	height: z.number().int().gte(128).lte(2048),
