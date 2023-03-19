@@ -16,16 +16,24 @@ class GifCreator {
 
 	/**
 	 *
-	 * @param {string} filePath absolute path to the file
+	 * @param {string | {buffer: Buffer, name : string}} file absolute path to the file or file as a buffer with the filename
 	 * @param {number} color color to tint the object
 	 * @returns
 	 */
-	addFile(filePath, color) {
-		const extension = path.extname(filePath);
+	addFile(file, color) {
+		let extension;
+		if (typeof file === 'string') {
+			extension = path.extname(file);
+		} else {
+			extension = path.extname(file.name);
+		}
 
 		const loader = getLoaderByExtension(extension);
-
-		return this.#renderer.addObject(filePath, loader, color);
+		return this.#renderer.addObject(
+			typeof file === 'string' ? file : file.buffer,
+			loader,
+			color,
+		);
 	}
 
 	/**

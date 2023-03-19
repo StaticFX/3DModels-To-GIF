@@ -1,11 +1,15 @@
+const { Object3D } = require('three');
+
 /**
- * Super class for a loader
+ * Superclass for a loader
  */
 class Loader {
 	/**
 	 * Function will be overwritten by different loaders
+	 * @param {ArrayBuffer} file file as a buffer
+	 * @param {Object3D} parent three.js object parent
 	 */
-	load() {
+	async load(file, parent) {
 		throw new Error('Not implemented');
 	}
 }
