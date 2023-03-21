@@ -44,12 +44,15 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 
 		await gifCreator.generateGif({
 			angle: options.anglePerFrame,
-			axis: 'y',
+			axis: options.rotationAxis,
 			dataStream: stream,
 			repeat: options.loop,
 			background: options.backgroundColor,
 			delay: options.delay,
 			transparent: options.transparent,
+			initialRotation: options.initialRotation,
+			threshold: options.threshold,
+			axisSpace: options.axisSpace,
 		});
 	} catch (err) {
 		console.debug(err);
