@@ -4,6 +4,7 @@
   "description": "Converts STLs to a 3D spinning Gif",
   "main": "app.js",
   "scripts": {
+    "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "format": "npx prettier --write ./src",
     "prepare": "husky install"
