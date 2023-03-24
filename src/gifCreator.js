@@ -58,11 +58,18 @@ class GifCreator {
 	 */
 
 	/**
+	 * @typedef {object} rotation
+	 * @property {number} [x] rotation on x axis
+	 * @property {number} [y] rotation on y axis
+	 * @property {number} [z] rotation on z axis
+	 */
+
+	/**
 	 * @typedef {object} generateOptions
 	 * @property {number} angle angle on how far the scene gets rotated each frame in degrees
 	 * @property {number} angle
 	 * @property {Stream} dataStream stream to write the gif to
-	 * @property {string} axis axis to rotate the scene around
+	 * @property {"x" | "y" | "z"} axis axis to rotate the scene around
 	 * @property {number} background background color
 	 * @property {number} threshold optimizer threshold percentage in the range of 0-100
 	 * @property {number} delay delay between the images
@@ -71,6 +78,8 @@ class GifCreator {
 	 * @property {cbError} cbError called on error
 	 * @property {cbFinish} cbFinish called on finish
 	 * @property {cbProgress} cbProgress called on progress
+	 * @property {"world" | "object"} axisSpace specifies the axis space, either world or object
+	 * @property {rotation} initialRotation scene will be rotated on start
 	 */
 
 	/**
@@ -84,8 +93,22 @@ class GifCreator {
 
 		this.#renderer.setSceneBackgroundColor(options.background);
 
+		if (options.initialRotation) {
+			Object.keys(options.initialRotation).forEach((axis) => {
+				this.#renderer.rotateScene(
+					axis,
+					options.initialRotation[axis],
+					options.axisSpace,
+				);
+			});
+		}
+
 		for (let i = 0; i < pictures; i++) {
-			this.#renderer.rotateScene(options.axis, options.angle);
+			this.#renderer.rotateScene(
+				options.axis,
+				options.angle,
+				options.axisSpace,
+			);
 			const image = this.#renderer.renderImage();
 			images.push(image);
 

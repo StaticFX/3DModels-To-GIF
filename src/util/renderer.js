@@ -117,17 +117,37 @@ class Renderer {
 		return imgData;
 	}
 
+	/**
+	 * Sets the scene background
+	 * @param {number} color color value as number
+	 */
 	setSceneBackgroundColor(color) {
 		this.#scene.background = new THREE.Color(color);
 	}
 
-	rotateScene(axis, angleDeg) {
+	/**
+	 * Rotates the whole scene by a given angle on a given axis
+	 * @param {"x" | "y" | "z"} axis axis name x | y | z
+	 * @param {number} angleDeg angle to rotate in degrees
+	 * @param {"world" | "object"} axisSpace axis space to use either fixed world axis or local object access
+	 */
+	rotateScene(axis, angleDeg, axisSpace) {
 		const rad = THREE.MathUtils.degToRad(angleDeg);
 
 		const axisVector = this.#getAxisByName(axis);
-		this.#parent.rotateOnWorldAxis(axisVector, rad);
+
+		if (axisSpace === 'object') {
+			this.#parent.rotateOnAxis(axisVector, rad);
+		} else {
+			this.#parent.rotateOnWorldAxis(axisVector, rad);
+		}
 	}
 
+	/**
+	 * Returns you the correct normalized vector for a specified axis name
+	 * @param {"x" | "y" | "z"} axis axis name x | y | z
+	 * @returns {THREE.Vector3} the normalized vector of the axis
+	 */
 	#getAxisByName(axis) {
 		let axisVector = new THREE.Vector3(0, 1, 0);
 		switch (axis) {
