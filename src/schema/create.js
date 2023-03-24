@@ -22,17 +22,17 @@ const createSchema = z.object({
 	loop: z.number().int().gte(-1).optional().default(-1),
 	delay: z.number().int().gte(1),
 	anglePerFrame: z.number().positive().lte(360),
-	rotationAxis: z.enum(['x', 'y', 'z']),
+	cameraRotationAxis: z.enum(['X', 'Y', 'Z']),
 	initialRotation: z
 		.object({
 			x: z.number().gte(0).lte(360).optional(),
 			y: z.number().gte(0).lte(360).optional(),
-			z: z.number().gte(0).lte(360).optional(),
+			Z: z.number().gte(0).lte(360).optional(),
 		})
 		.optional()
 		.default({}),
 	threshold: z.number().gte(0).lte(100).optional().default(0),
-	axisSpace: z.enum(['world', 'object']).optional().default('world'),
+	axisSpace: z.enum(['WORLD', 'OBJECT']).optional().default('WORLD'),
 });
 
 module.exports = {
