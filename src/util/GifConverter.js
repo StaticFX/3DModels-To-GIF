@@ -54,6 +54,7 @@ class GifConverter {
 	 * @property {number} [options.repeat] -1 for none, 0 for infinity, > 0 for fixed value
 	 * @property {number} [options.transparent] color to replace with transparent pixels
 	 * @property {boolean} [options.optimizer] whether to use the optimizer or not
+	 * @property {number} [options.backgroundColor] background color to make transparent
 	 * @property {number} [options.threshold] Optimizer threshold percentage in the range of 0-100
 	 * @property {Stream} [options.dataStream] if supplied it will write the gif to this stream
 	 * @property {cbProgress} [options.cbProgress] called on progress
@@ -89,11 +90,18 @@ class GifConverter {
 			options.optimizer ?? GifConverter.BASE_USE_OPTIMIZER;
 		encoder.setDelay(options.delay ?? GifConverter.BASE_DELAY);
 		encoder.setRepeat(options.repeat ?? GifConverter.BASE_REPEAT);
-		encoder.setTransparent(
-			options.transparent ?? GifConverter.BASE_TRANSPARENT,
-		);
+		if (options.transparent) {
+			encoder.setTransparent(options.backgroundColor);
+		}
+
 		encoder.setThreshold(options.threshold ?? GifConverter.BASE_THRESHOLD);
-		encoder.on('progress', options.cbProgress || (() => {}));
+		encoder.on(
+			'progress',
+			options.cbProgress ||
+				((percentage) => {
+					console.debug(percentage);
+				}),
+		);
 
 		encoder.start();
 

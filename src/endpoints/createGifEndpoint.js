@@ -44,7 +44,7 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 
 		await gifCreator.generateGif({
 			angle: options.anglePerFrame,
-			axis: options.rotationAxis,
+			axis: options.cameraRotationAxis,
 			dataStream: stream,
 			repeat: options.loop,
 			background: options.backgroundColor,

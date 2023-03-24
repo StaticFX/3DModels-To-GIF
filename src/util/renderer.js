@@ -83,16 +83,20 @@ class Renderer {
 			}
 		});
 
+		var averagePosition = new THREE.Vector3();
+
 		const box = new THREE.Box3().setFromObject(this.#parent);
 		var middle = new THREE.Vector3();
 		box.getCenter(middle);
-		this.#parent.applyMatrix4(
-			new THREE.Matrix4().makeTranslation(
-				-middle.x,
-				-middle.y,
-				-middle.z,
-			),
-		);
+
+		this.#parent.traverse(function (obj) {
+			if (obj.isMesh) {
+				averagePosition.add(obj.position);
+			}
+		});
+
+		averagePosition.divideScalar(this.#parent.children.length);
+		this.#parent.position.sub(averagePosition);
 
 		this.#positionCamera();
 	}
@@ -136,7 +140,7 @@ class Renderer {
 
 		const axisVector = this.#getAxisByName(axis);
 
-		if (axisSpace === 'object') {
+		if (axisSpace === 'OBJECT') {
 			this.#parent.rotateOnAxis(axisVector, rad);
 		} else {
 			this.#parent.rotateOnWorldAxis(axisVector, rad);
@@ -150,7 +154,7 @@ class Renderer {
 	 */
 	#getAxisByName(axis) {
 		let axisVector = new THREE.Vector3(0, 1, 0);
-		switch (axis) {
+		switch (axis.toLowerCase()) {
 			case 'x':
 				axisVector = new THREE.Vector3(1, 0, 0);
 				break;
@@ -169,9 +173,6 @@ class Renderer {
 		// const center = box.getCenter(new THREE.Vector3());
 		// const size = box.getSize(new THREE.Vector3());
 
-		// const boxDiagonalSq =
-		// 	Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
-		// const maxDimension = Math.sqrt(boxDiagonalSq); //maximum width of the object
 		// const fovDegrees = this.#camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
 		// let distance = maxDimension / (2 * Math.tan(fovDegrees / 2)); //divide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
 
@@ -192,9 +193,13 @@ class Renderer {
 		const center = boundingBox.getCenter(new THREE.Vector3());
 		const size = boundingBox.getSize(new THREE.Vector3());
 		const maxSide = Math.max(size.x, size.y, size.z);
-		const maxDimension = Math.sqrt(
-			Math.pow(maxSide, 2) + Math.sqrt(maxSide, 2),
-		);
+
+		const boxDiagonalSq =
+			Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
+		const maxDimension = Math.sqrt(boxDiagonalSq); //maximum width of the object
+		//const maxDimension = Math.sqrt(
+		//	Math.pow(maxSide, 2) + Math.sqrt(maxSide, 2),
+		//);
 		const distance =
 			maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
 		this.#camera.position.set(
@@ -202,6 +207,14 @@ class Renderer {
 			center.y,
 			center.z + distance + padding,
 		);
+		//this.#camera.lookAt(center);
+
+		console.log(size);
+
+		this.#parent.position.y += size.z / 2;
+
+		console.log(this.#parent.position);
+		console.log(this.#camera.position);
 	}
 }
 
