@@ -5,6 +5,10 @@ const { createTokenRouter } = require('./endpoints/createTokenEndpoint.js');
 const { statusRouter } = require('./endpoints/checkStatusEndpoint.js');
 const { errorHandlingMiddleWare } = require('./middleware/errorHandling.js');
 
+console.debug = (...args) => {
+	if (process.env.DEBUG === 'true') console.log(...args);
+};
+
 const app = express();
 
 app.use(express.json());
