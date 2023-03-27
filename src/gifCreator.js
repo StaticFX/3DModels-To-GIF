@@ -9,7 +9,7 @@ class GifCreator {
 	#gifConverter;
 
 	constructor(outPath, width, height) {
-		const gl = new GL(width, height);
+		const gl = new GL(width, height, { antialias: true });
 		this.#renderer = new Renderer(gl, width, height);
 		this.#gifConverter = new GifConverter(width, height, outPath);
 	}
@@ -95,6 +95,10 @@ class GifCreator {
 
 		if (options.initialRotation) {
 			Object.keys(options.initialRotation).forEach((axis) => {
+				console.log("inital rotation:")
+				console.log(axis);
+				console.log(options.initialRotation[axis]);
+
 				this.#renderer.rotateScene(
 					axis,
 					options.initialRotation[axis],
