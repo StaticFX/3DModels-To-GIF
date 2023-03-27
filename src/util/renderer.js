@@ -148,16 +148,6 @@ class Renderer {
 		const sphere = new THREE.SphereGeometry(10, 32, 32);
 		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
-		
-		this.#parent.traverse(function (obj) {
-			if (obj.isMesh) {
-				console.log(obj.pivot);
-				console.log(obj.position);
-			}
-		});
-
-
-		console.log(axisSpace);
 		if (axisSpace === 'OBJECT') {
 			this.#parent.rotateOnAxis(axisVector, rad);
 		} else {
@@ -220,8 +210,6 @@ class Renderer {
 		this.#camera.updateMatrix();
 
 		//this.#parent.translateY(size.y / 2);
-		console.log("Parent position: ");
-		console.log(this.#parent.position);
 	}
 }
 

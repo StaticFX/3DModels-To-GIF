@@ -95,10 +95,6 @@ class GifCreator {
 
 		if (options.initialRotation) {
 			Object.keys(options.initialRotation).forEach((axis) => {
-				console.log("inital rotation:")
-				console.log(axis);
-				console.log(options.initialRotation[axis]);
-
 				this.#renderer.rotateScene(
 					axis,
 					options.initialRotation[axis],
