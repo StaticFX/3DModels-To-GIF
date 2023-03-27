@@ -37,7 +37,7 @@ function parameterParsingMiddleWare(req, res, next) {
 	} catch (parsingError) {
 		const error = new Error('Invalid Parameter provided');
 		error.statusCode = 400;
-		error.info = parsingError.issues.map((issue) => issue.message);
+		error.info = parsingError.issues;
 		return next(error);
 	}
 }

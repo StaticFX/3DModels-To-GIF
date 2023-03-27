@@ -1,65 +1,66 @@
 const { Router } = require('express');
-const multer = require('multer');
-const path = require('path');
-const { PassThrough } = require('stream');
 const { GifCreator } = require('../gifCreator');
-const { createSchema } = require('../schema/create');
+const {
+	parameterParsingMiddleWare,
+	OPTIONS_FIELD_KEY,
+} = require('../middleware/parameterParsing');
+const {
+	singleFileUploadMiddleWare,
+	FILE_FIELD_KEY,
+} = require('../middleware/singleFileUpload');
 
 const createGifRouter = new Router();
 
-const storage = multer.memoryStorage();
+createGifRouter.post(
+	'/gif',
+	singleFileUploadMiddleWare,
+	parameterParsingMiddleWare,
+	async (req, res, next) => {
+		const options = req[OPTIONS_FIELD_KEY];
 
-const upload = multer({ storage });
-
-createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
-	let options;
-	try {
-		const body = JSON.parse(req.body.options);
-		options = createSchema.parse(body);
-		options.name ??= path.parse(req.file.originalname).name;
-	} catch (parsingError) {
-		return res.status(400).send(parsingError.issues);
-	}
-
-	const gifCreator = new GifCreator(undefined, options.width, options.height);
-	try {
-		await gifCreator.addFile(
-			{ buffer: req.file.buffer.buffer, name: req.file.originalname },
-			options.objectColor,
+		const gifCreator = new GifCreator(
+			undefined,
+			options.width,
+			options.height,
 		);
-	} catch (err) {
-		console.debug(err);
-		return res.status(400).send({ error: err.toString() });
-	}
 
-	try {
-		const stream = new PassThrough();
+		try {
+			await gifCreator.addFile(
+				{
+					buffer: req[FILE_FIELD_KEY].buffer.buffer,
+					name: req[FILE_FIELD_KEY].originalname,
+				},
+				options.objectColor,
+			);
+		} catch (err) {
+			err.statusCode = 400;
+			return next(err);
+		}
 
-		res.set('Content-Type', 'image/gif');
-		res.set(
-			'Content-Disposition',
-			`Content-Disposition: attachment; filename="${options.name}.gif"`,
-		);
-		stream.pipe(res);
+		try {
+			res.set('Content-Type', 'image/gif');
+			res.set(
+				'Content-Disposition',
+				`Content-Disposition: attachment; filename="${options.name}.gif"`,
+			);
 
-		await gifCreator.generateGif({
-			angle: options.anglePerFrame,
-			axis: options.cameraRotationAxis,
-			dataStream: stream,
-			repeat: options.loop,
-			background: options.backgroundColor,
-			delay: options.delay,
-			transparent: options.transparent,
-			initialRotation: options.initialRotation,
-			threshold: options.threshold,
-			axisSpace: options.axisSpace,
-		});
-	} catch (err) {
-		console.debug(err);
-		return res
-			.status(500)
-			.send({ error: 'Error while generating the gif' });
-	}
-});
+			gifCreator.generateGif({
+				angle: options.anglePerFrame,
+				axis: options.cameraRotationAxis,
+				dataStream: res,
+				repeat: options.loop,
+				background: options.backgroundColor,
+				delay: options.delay,
+				transparent: options.transparent,
+				initialRotation: options.initialRotation,
+				threshold: options.threshold,
+				axisSpace: options.axisSpace,
+			});
+		} catch (err) {
+			err.statusCode = 500;
+			return next(err);
+		}
+	},
+);
 
 module.exports = { createGifRouter };
