@@ -44,14 +44,16 @@ createTokenRouter.post(
 				options.objectColor,
 			);
 		} catch (err) {
-			err.statusCode = 400;
-			return next(err);
+			console.debug(
+				'Error during adding a object after Token creation:',
+				err,
+			);
 		}
 
 		try {
 			gifCreator.generateGif({
 				angle: options.anglePerFrame,
-				axis: options.rotationAxis,
+				axis: options.cameraRotationAxis,
 				repeat: options.loop,
 				background: options.backgroundColor,
 				delay: options.delay,
@@ -61,8 +63,10 @@ createTokenRouter.post(
 				axisSpace: options.axisSpace,
 			});
 		} catch (err) {
-			err.statusCode = 500;
-			return next(err);
+			console.debug(
+				'Error during server generating Gif after Token creation:',
+				err,
+			);
 		} finally {
 			setTimeout(async () => {
 				if (fs.existsSync(outPath)) {
