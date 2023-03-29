@@ -9,7 +9,7 @@ class GifCreator {
 	#gifConverter;
 
 	constructor(outPath, width, height) {
-		const gl = new GL(width, height);
+		const gl = new GL(width, height, { antialias: true });
 		this.#renderer = new Renderer(gl, width, height);
 		this.#gifConverter = new GifConverter(width, height, outPath);
 	}
