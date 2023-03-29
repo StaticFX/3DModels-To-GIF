@@ -43,9 +43,8 @@ class Renderer {
 			Renderer.BASE_NEAR_PLANE,
 			Renderer.BASE_FAR_PLANE,
 		);
-		this.#camera.lookAt(this.#parent.position);
-
 		this.#camera.position.z = 20;
+
 
 		this.#scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 		this.#scene.add(new THREE.HemisphereLight(0xffffff, 0.2));
@@ -68,13 +67,14 @@ class Renderer {
 		} else {
 			buffer = file;
 		}
-
+		
 		const object = await loader.load(buffer, this.#parent);
 
 		this.#parent.add(object);
 
 		const material = new THREE.MeshPhongMaterial({
 			color,
+			shading: THREE.SmoothShading
 		});
 
 		this.#parent.traverse((child) => {
@@ -91,14 +91,19 @@ class Renderer {
 
 		this.#parent.traverse(function (obj) {
 			if (obj.isMesh) {
+				obj.geometry.computeBoundingBox();
+				obj.geometry.center();
 				averagePosition.add(obj.position);
 			}
-		});
+		});	
 
 		averagePosition.divideScalar(this.#parent.children.length);
 		this.#parent.position.sub(averagePosition);
+		var rad = THREE.MathUtils.degToRad(90);
+		this.#parent.rotateX(rad);
 
 		this.#positionCamera();
+	
 	}
 
 	renderImage() {
@@ -137,8 +142,11 @@ class Renderer {
 	 */
 	rotateScene(axis, angleDeg, axisSpace) {
 		const rad = THREE.MathUtils.degToRad(angleDeg);
-
+		
 		const axisVector = this.#getAxisByName(axis);
+
+		const sphere = new THREE.SphereGeometry(10, 32, 32);
+		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
 		if (axisSpace === 'OBJECT') {
 			this.#parent.rotateOnAxis(axisVector, rad);
@@ -168,53 +176,40 @@ class Renderer {
 		return axisVector;
 	}
 
-	#positionCamera(padding = 0) {
-		// const box = new THREE.Box3().setFromObject(this.#parent);
-		// const center = box.getCenter(new THREE.Vector3());
-		// const size = box.getSize(new THREE.Vector3());
-
-		// const fovDegrees = this.#camera.fov * (Math.PI / 180); //get the cameras fov and convert it into degrees
-		// let distance = maxDimension / (2 * Math.tan(fovDegrees / 2)); //divide the maximum width of the object, by the tan of the cameras fov / 2 to get the amount the camera needs to slide out
-
-		// distance *= padding; //apply padding around it
-
-		// const direction = this.#camera.position
-		// 	.clone()
-		// 	.sub(center)
-		// 	.normalize()
-		// 	.multiplyScalar(distance);
-
-		// this.#camera.position.copy(center).add(direction);
-
-		// this.#camera.near = maxDimension / 100;
-		// this.#camera.far = distance * 3;
-
-		const boundingBox = new THREE.Box3().setFromObject(this.#parent);
+	#positionCamera(padding = 1.2) {
+		const boundingBox = new THREE.Box3().setFromObject(this.#parent);	
 		const center = boundingBox.getCenter(new THREE.Vector3());
+		const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere(center));
+		const maxDimension = boundingSphere.radius * 2 * padding;
 		const size = boundingBox.getSize(new THREE.Vector3());
-		const maxSide = Math.max(size.x, size.y, size.z);
 
-		const boxDiagonalSq =
-			Math.pow(size.x, 2) + Math.pow(size.y, 2) + Math.pow(size.z, 2); // the room diagonal of the bounding box of the mesh
-		const maxDimension = Math.sqrt(boxDiagonalSq); //maximum width of the object
-		//const maxDimension = Math.sqrt(
-		//	Math.pow(maxSide, 2) + Math.sqrt(maxSide, 2),
-		//);
-		const distance =
-			maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
-		this.#camera.position.set(
-			center.x,
-			center.y,
-			center.z + distance + padding,
-		);
+
+		const distance = maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
+
+		this.#camera.position.set(0,0,0);
+		this.#camera.updateMatrix();
+
+		const deg = THREE.MathUtils.degToRad(45);
+		this.#camera.rotateX(deg);
+
+		const backwardVector = new THREE.Vector3();
+		const direction = this.#camera.getWorldDirection(backwardVector);
+		backwardVector.negate();
+		backwardVector.multiplyScalar(distance);
+		
+		this.#camera.position.add(backwardVector);
+		this.#camera.updateMatrix();
+
+
+
+		//this.#camera.position.copy(center).add(direction);
+
+		//this.#camera.translateY(-size.y);
 		//this.#camera.lookAt(center);
 
-		console.log(size);
+		this.#camera.updateMatrix();
 
-		this.#parent.position.y += size.z / 2;
-
-		console.log(this.#parent.position);
-		console.log(this.#camera.position);
+		//this.#parent.translateY(size.y / 2);
 	}
 }
 
