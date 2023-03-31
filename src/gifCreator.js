@@ -75,6 +75,7 @@ class GifCreator {
 	 * @property {number} delay delay between the images
 	 * @property {number} repeat -1 for none, 0 for infinity, > 0 for fixed value
 	 * @property {boolean} transparent whether to render transparent or not, will replace bgColor with transparent
+	 * @property {number} text text to write as a label to the give
 	 * @property {cbError} cbError called on error
 	 * @property {cbFinish} cbFinish called on finish
 	 * @property {cbProgress} cbProgress called on progress
@@ -123,6 +124,7 @@ class GifCreator {
 			optimizer: options.optimizer,
 			backgroundColor: options.background,
 			transparent: options.transparent,
+			text: options.text,
 			cbError: options.cbError,
 			cbFinish: options.cbFinish,
 			cbProgress: options.cbProgress,

@@ -53,6 +53,7 @@ createGifRouter.post('/gif', upload.single('file'), async (req, res) => {
 			initialRotation: options.initialRotation,
 			threshold: options.threshold,
 			axisSpace: options.axisSpace,
+			text: options.label,
 		});
 	} catch (err) {
 		console.debug(err);

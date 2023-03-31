@@ -31,8 +31,6 @@ createTokenRouter.post('/create', upload.single('file'), async (req, res) => {
 	const outPath = path.resolve(
 		`${process.env.OUTPUT_DIRECTORY}/${token}.gif`,
 	);
-	
-
 
 	const gifCreator = new GifCreator(outPath, options.width, options.height);
 	try {
@@ -56,6 +54,7 @@ createTokenRouter.post('/create', upload.single('file'), async (req, res) => {
 			initialRotation: options.initialRotation,
 			threshold: options.threshold,
 			axisSpace: options.axisSpace,
+			text: options.label,
 		});
 	} catch (err) {
 		console.debug(err);
