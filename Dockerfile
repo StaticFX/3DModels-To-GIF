@@ -1,31 +1,35 @@
-FROM node:16
+FROM python:2.7
+FROM node:19
 
-# Update package lists and install dependencies
+ARG BUILD_DATE
+ARG VCS_REF
+
+# Install the dependencies for building gl
 RUN apt-get update && apt-get install -y \
-    libxi-dev \
-    libglu1-mesa-dev \
-    libglew-dev \
-    xvfb \
-    && rm -rf /var/lib/apt/lists/*
+        libgl1-mesa-dri \
+        libglapi-mesa \
+        libosmesa6 \
+        mesa-utils \
+        xvfb \
+ && apt-get clean
 
-# Set up XVFB
-ENV DISPLAY=:99
-RUN Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-ENV PORT=3000
+# Drivers to build gl
+RUN apt-get -y install python cmake libglu1-mesa-dev freeglut3-dev libxi-dev libxmu-dev libglu1-mesa-dev libglew-dev
+ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/bin/dumb-init
+RUN chmod 0777 /usr/bin/dumb-init
 
-# Set up working directory
-WORKDIR /
 
-# Copy package.json and install npm dependencies
+# Activate the virtual environment
+ENV PATH="/venv/bin:$PATH"
+
+ENV NODE_PATH /usr/local/lib/node_modules
+
+WORKDIR /app
 COPY package*.json ./
-COPY . .
-RUN rm -rf node_modules/
 RUN npm ci
+COPY . ./
 
-# Copy source code into container
-
-# Expose port if needed
-EXPOSE 3000
-
-# Start the application
-CMD [ "npm", "start", "src/app.js" ]
+WORKDIR /app
+# Setting xvfb to run gl headless
+ENTRYPOINT ["/usr/bin/dumb-init", "--", "xvfb-run", "-s", "-ac -screen 0 1280x1024x24"]
+CMD ["node", "src/app.js"]
