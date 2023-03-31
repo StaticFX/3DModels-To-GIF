@@ -73,8 +73,7 @@ class Renderer {
 		group.add(object);
 
 		const material = new THREE.MeshPhongMaterial({
-			color,
-			shading: THREE.SmoothShading,
+			color
 		});
 
 		const meshes = [];

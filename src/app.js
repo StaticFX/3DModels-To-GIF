@@ -20,6 +20,10 @@ process.on('SIGINT', () => {
   process.exit(0)
 });
 
+const version = '1.0.1'
+
+console.log('Starting 3DModels-To-Gif Generator Version: ', version);
+
 const app = express();
 
 app.use(express.json());
@@ -33,7 +37,8 @@ var limiter = RateLimit({
 
 app.use(limiter);
 
-app.get("/", (req, res) => { res.status(200).send("STL-To-Gif Generator"); });
+app.get("/", (req, res) => { res.status(200).send("STL-To-Gif Generator Version: ", version); });
+
 app.use('/create', createGifRouter);
 app.use('/token', createTokenRouter);
 app.use('/check', statusRouter);
