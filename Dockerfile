@@ -21,6 +21,8 @@ RUN chmod 0777 /usr/bin/dumb-init
 
 # Activate the virtual environment
 ENV PATH="/venv/bin:$PATH"
+ENV PORT=3000
+ENV DEBUG=false
 
 ENV NODE_PATH /usr/local/lib/node_modules
 

@@ -88,6 +88,12 @@ class GifCreator {
 	 * @returns {Promise<string>} path to the saved gif
 	 */
 	generateGif(options) {
+		const debug = process.env.DEBUG.toUpperCase() === "true";
+		if (debug) {
+			console.debug('Generating new gif...');
+		}
+
+
 		const pictures = 360 / options.angle;
 		const images = [];
 
@@ -111,8 +117,10 @@ class GifCreator {
 			);
 			const image = this.#renderer.renderImage();
 			images.push(image);
-
-			console.debug('Rendering frame', i);
+			
+			if (debug) {
+				console.debug('Rendering frame: ', i);
+			}
 		}
 
 		return this.#gifConverter.convertToGif(images, {

@@ -73,8 +73,7 @@ class Renderer {
 		this.#parent.add(object);
 
 		const material = new THREE.MeshPhongMaterial({
-			color,
-			shading: THREE.SmoothShading
+			color
 		});
 
 		this.#parent.traverse((child) => {
@@ -82,7 +81,7 @@ class Renderer {
 				child.material = material;
 			}
 		});
-
+		
 		var averagePosition = new THREE.Vector3();
 
 		const box = new THREE.Box3().setFromObject(this.#parent);
@@ -103,7 +102,6 @@ class Renderer {
 		this.#parent.rotateX(rad);
 
 		this.#positionCamera();
-	
 	}
 
 	renderImage() {
