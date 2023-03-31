@@ -33,6 +33,7 @@ const createSchema = z.object({
 		.default({}),
 	threshold: z.number().gte(0).lte(100).optional().default(0),
 	axisSpace: z.enum(['WORLD', 'OBJECT']).optional().default('WORLD'),
+	label: z.string().optional(),
 });
 
 module.exports = {

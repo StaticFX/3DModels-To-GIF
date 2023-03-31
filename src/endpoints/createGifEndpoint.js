@@ -44,18 +44,19 @@ createGifRouter.post(
 				`Content-Disposition: attachment; filename="${options.name}.gif"`,
 			);
 
-			gifCreator.generateGif({
-				angle: options.anglePerFrame,
-				axis: options.cameraRotationAxis,
-				dataStream: res,
-				repeat: options.loop,
-				background: options.backgroundColor,
-				delay: options.delay,
-				transparent: options.transparent,
-				initialRotation: options.initialRotation,
-				threshold: options.threshold,
-				axisSpace: options.axisSpace,
-			});
+      await gifCreator.generateGif({
+        angle: options.anglePerFrame,
+        axis: options.cameraRotationAxis,
+        dataStream: stream,
+        repeat: options.loop,
+        background: options.backgroundColor,
+        delay: options.delay,
+        transparent: options.transparent,
+        initialRotation: options.initialRotation,
+        threshold: options.threshold,
+        axisSpace: options.axisSpace,
+        text: options.label,
+      });
 		} catch (err) {
 			err.statusCode = 500;
 			return next(err);

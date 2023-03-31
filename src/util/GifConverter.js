@@ -1,3 +1,4 @@
+const { createCanvas, ImageData } = require('canvas');
 const fs = require('fs');
 const GIFEncoder = require('gif-encoder-2');
 
@@ -10,6 +11,8 @@ class GifConverter {
 	static BASE_TRANSPARENT = undefined;
 	static BASE_USE_OPTIMIZER = true;
 	static BASE_THRESHOLD = 0;
+	static BASE_TEXT_Y_PADDING = 30;
+	static BASE_TEXT_SIZE = 0.05;
 
 	#width;
 	#height;
@@ -56,6 +59,7 @@ class GifConverter {
 	 * @property {boolean} [options.optimizer] whether to use the optimizer or not
 	 * @property {number} [options.backgroundColor] background color to make transparent
 	 * @property {number} [options.threshold] Optimizer threshold percentage in the range of 0-100
+	 * @property {string} [options.text] text to write to the gif as a label
 	 * @property {Stream} [options.dataStream] if supplied it will write the gif to this stream
 	 * @property {cbProgress} [options.cbProgress] called on progress
 	 * @property {cbFinish} [options.cbFinish] called on finish
@@ -80,6 +84,9 @@ class GifConverter {
 			undefined,
 			imagesData.length,
 		);
+
+		const canvas = createCanvas(this.#width, this.#height);
+		const ctx = canvas.getContext('2d');
 
 		//choose the stream
 		const stream =
@@ -109,8 +116,28 @@ class GifConverter {
 
 		encoder.start();
 
+		const fontSize = Math.floor(canvas.width * GifConverter.BASE_TEXT_SIZE);
+		ctx.font = `${fontSize}px Sans`;
+		ctx.fillStyle = `#ffffff`;
+
+		const textWidth = ctx.measureText(options.text).width;
+		const x = canvas.width / 2 - textWidth / 2;
+		const y = GifConverter.BASE_TEXT_Y_PADDING + fontSize / 2;
+
 		for (const frame of imagesData) {
-			encoder.addFrame(frame);
+			if (options.text && typeof options.text === 'string') {
+				const imageData = new ImageData(
+					new Uint8ClampedArray(frame),
+					this.#width,
+					this.#height,
+				);
+				ctx.putImageData(imageData, 0, 0);
+				ctx.fillText(options.text, x, y);
+
+				encoder.addFrame(ctx);
+			} else {
+				encoder.addFrame(frame);
+			}
 		}
 
 		encoder.finish();
