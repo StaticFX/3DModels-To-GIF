@@ -90,10 +90,7 @@ class GifCreator {
 	 * @returns {Promise<string>} path to the saved gif
 	 */
 	generateGif(options) {
-		const debug = process.env.DEBUG.toUpperCase() === 'true';
-		if (debug) {
-			console.debug('Generating new gif...');
-		}
+		console.debug('Generating new gif...');
 
 		const pictures = 360 / options.angle;
 		const images = [];
