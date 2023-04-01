@@ -8,6 +8,7 @@ const {
 	singleFileUploadMiddleWare,
 	FILE_FIELD_KEY,
 } = require('../middleware/singleFileUpload');
+const { PassThrough } = require('stream');
 
 const createGifRouter = new Router();
 
@@ -44,19 +45,19 @@ createGifRouter.post(
 				`Content-Disposition: attachment; filename="${options.name}.gif"`,
 			);
 
-      await gifCreator.generateGif({
-        angle: options.anglePerFrame,
-        axis: options.cameraRotationAxis,
-        dataStream: stream,
-        repeat: options.loop,
-        background: options.backgroundColor,
-        delay: options.delay,
-        transparent: options.transparent,
-        initialRotation: options.initialRotation,
-        threshold: options.threshold,
-        axisSpace: options.axisSpace,
-        text: options.label,
-      });
+			await gifCreator.generateGif({
+				angle: options.anglePerFrame,
+				axis: options.cameraRotationAxis,
+				dataStream: res,
+				repeat: options.loop,
+				background: options.backgroundColor,
+				delay: options.delay,
+				transparent: options.transparent,
+				initialRotation: options.initialRotation,
+				threshold: options.threshold,
+				axisSpace: options.axisSpace,
+				text: options.label,
+			});
 		} catch (err) {
 			err.statusCode = 500;
 			return next(err);
