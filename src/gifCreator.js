@@ -20,7 +20,7 @@ class GifCreator {
 	 * @param {number} color color to tint the object
 	 * @returns
 	 */
-	addFile(file, color) {
+	addFile(file, color, padding) {
 		let extension;
 		if (typeof file === 'string') {
 			extension = path.extname(file);
@@ -33,6 +33,7 @@ class GifCreator {
 			typeof file === 'string' ? file : file.buffer,
 			loader,
 			color,
+			padding,
 		);
 	}
 
@@ -89,11 +90,10 @@ class GifCreator {
 	 * @returns {Promise<string>} path to the saved gif
 	 */
 	generateGif(options) {
-		const debug = process.env.DEBUG.toUpperCase() === "true";
+		const debug = process.env.DEBUG.toUpperCase() === 'true';
 		if (debug) {
 			console.debug('Generating new gif...');
 		}
-
 
 		const pictures = 360 / options.angle;
 		const images = [];
@@ -118,7 +118,7 @@ class GifCreator {
 			);
 			const image = this.#renderer.renderImage();
 			images.push(image);
-			
+
 			if (debug) {
 				console.debug('Rendering frame: ', i);
 			}

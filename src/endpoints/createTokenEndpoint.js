@@ -42,6 +42,7 @@ createTokenRouter.post(
 					name: req[FILE_FIELD_KEY].originalname,
 				},
 				options.objectColor,
+				options.padding,
 			);
 		} catch (err) {
 			console.debug(
