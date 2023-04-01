@@ -42,6 +42,7 @@ createTokenRouter.post(
 					name: req[FILE_FIELD_KEY].originalname,
 				},
 				options.objectColor,
+				options.padding,
 			);
 		} catch (err) {
 			console.debug(
@@ -50,20 +51,20 @@ createTokenRouter.post(
 			);
 		}
 
-	  try {
-      gifCreator.generateGif({
-        angle: options.anglePerFrame,
-        axis: options.rotationAxis,
-        repeat: options.loop,
-        background: options.backgroundColor,
-        delay: options.delay,
-        transparent: options.transparent,
-        initialRotation: options.initialRotation,
-        threshold: options.threshold,
-        axisSpace: options.axisSpace,
-        text: options.label,
-      });
-    } catch (err) {
+		try {
+			gifCreator.generateGif({
+				angle: options.anglePerFrame,
+				axis: options.cameraRotationAxis,
+				repeat: options.loop,
+				background: options.backgroundColor,
+				delay: options.delay,
+				transparent: options.transparent,
+				initialRotation: options.initialRotation,
+				threshold: options.threshold,
+				axisSpace: options.axisSpace,
+				text: options.label,
+			});
+		} catch (err) {
 			console.debug(
 				'Error during server generating Gif after Token creation:',
 				err,

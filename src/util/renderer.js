@@ -5,7 +5,7 @@ const { Loader } = require('../loader/loader');
 class Renderer {
 	static BASE_FOV = 75;
 	static BASE_NEAR_PLANE = 0.1;
-	static BASE_FAR_PLANE = 1000;
+	static BASE_FAR_PLANE = 10000;
 
 	#gl;
 	#scene;
@@ -57,8 +57,9 @@ class Renderer {
 	 * @param {string | ArrayBuffer} file absolute path to the file or the file as a buffer
 	 * @param {Loader} loader loader for a given fileType
 	 * @param {number} color color value to tint the object
+	 * @param {number} padding padding to apply around the object
 	 */
-	async addObject(file, loader, color) {
+	async addObject(file, loader, color, padding) {
 		let buffer;
 		if (typeof file === 'string') {
 			const data = await fs.readFile(filepath);
@@ -73,7 +74,7 @@ class Renderer {
 		group.add(object);
 
 		const material = new THREE.MeshPhongMaterial({
-			color
+			color,
 		});
 
 		const meshes = [];
@@ -102,7 +103,7 @@ class Renderer {
 		var rad = THREE.MathUtils.degToRad(90);
 		this.#parent.rotateX(rad);
 
-		this.#positionCamera();
+		this.#positionCamera(padding);
 	}
 
 	renderImage() {
@@ -143,9 +144,6 @@ class Renderer {
 		const rad = THREE.MathUtils.degToRad(angleDeg);
 
 		const axisVector = this.#getAxisByName(axis);
-
-		const sphere = new THREE.SphereGeometry(10, 32, 32);
-		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 
 		if (axisSpace === 'OBJECT') {
 			this.#parent.rotateOnAxis(axisVector, rad);
@@ -200,15 +198,6 @@ class Renderer {
 
 		this.#camera.position.add(backwardVector);
 		this.#camera.updateMatrix();
-
-		//this.#camera.position.copy(center).add(direction);
-
-		//this.#camera.translateY(-size.y);
-		//this.#camera.lookAt(center);
-
-		this.#camera.updateMatrix();
-
-		//this.#parent.translateY(size.y / 2);
 	}
 }
 

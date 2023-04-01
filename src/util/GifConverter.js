@@ -75,8 +75,6 @@ class GifConverter {
 	 * @returns {Promise<string>} outPath of the file
 	 */
 	async convertToGif(imagesData, options) {
-		const debug = process.env.DEBUG.toUpperCase() === "true";
-
 		const encoder = new GIFEncoder(
 			this.#width,
 			this.#height,
@@ -108,9 +106,7 @@ class GifConverter {
 			'progress',
 			options.cbProgress ||
 				((percentage) => {
-					if (debug) {
-						console.debug('Building gif: ', percentage, '%');
-					}
+					console.debug('Building gif: ', percentage, '%');
 				}),
 		);
 
