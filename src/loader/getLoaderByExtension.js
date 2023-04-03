@@ -1,12 +1,19 @@
 const { STLLoader } = require('./stlloader');
 const { ObjLoader } = require('./objLoader');
+const { GLTFLoader } = require('./gltfLoader');
+
+const stlLoader = new STLLoader();
+const objLoader = new ObjLoader();
+const gltfLoader = new GLTFLoader();
 
 function getLoaderByExtension(extension) {
 	switch (extension) {
 		case '.stl':
-			return new STLLoader();
+			return stlLoader;
 		case '.obj':
-			return new ObjLoader();
+			return objLoader;
+		case '.gltf':
+			return gltfLoader;
 		default:
 			throw new Error(`Unsupported file extension: ${extension}`);
 	}
