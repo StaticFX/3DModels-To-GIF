@@ -12,6 +12,7 @@ function getLoaderByExtension(extension) {
 			return stlLoader;
 		case '.obj':
 			return objLoader;
+		case '.glb':
 		case '.gltf':
 			return gltfLoader;
 		default:
