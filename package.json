@@ -1,42 +1,49 @@
 {
-  "name": "stltogif",
-  "version": "1.0.0",
-  "description": "Converts STLs to a 3D spinning Gif",
-  "main": "app.js",
-  "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "format": "npx prettier --write ./src",
-    "prepare": "husky install"
-  },
-  "author": "Devin Fritz",
-  "license": "MIT",
-  "dependencies": {
-    "canvas": "^2.11.0",
-    "domino": "^2.1.6",
-    "dotenv": "^16.0.3",
-    "express": "^4.18.2",
-    "express-rate-limit": "^6.7.0",
-    "fs": "^0.0.1-security",
-    "fs-extra": "^11.1.0",
-    "gif-encoder-2": "^1.0.5",
-    "gl": "^6.0.2",
-    "helmet": "^6.0.1",
-    "multer": "^1.4.5-lts.1",
-    "node": "^19.6.1",
-    "png-file-stream": "^1.2.1",
-    "pngjs": "^7.0.0",
-    "three": "^0.150.1",
-    "zod": "^3.21.0"
-  },
-  "devDependencies": {
-    "@types/prettier": "^2.7.2",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.2",
-    "nodemon": "^2.0.20",
-    "prettier": "^2.8.4"
-  },
-  "lint-staged": {
-    "*.js": "prettier --write"
-  }
+	"name": "stltogif",
+	"version": "1.0.2",
+	"description": "Converts 3D File to a spinning Gif",
+	"main": "app.js",
+	"scripts": {
+		"start": "node src/app.js",
+		"dev": "nodemon src/app.js",
+		"format": "npx prettier --write ./src",
+		"prepare": "husky install"
+	},
+	"authors": [
+		{
+			"name": "Devin Fritz"
+		},
+		{
+			"name": "Mike Benz"
+		}
+	],
+	"license": "MIT",
+	"dependencies": {
+		"canvas": "^2.11.0",
+		"domino": "^2.1.6",
+		"dotenv": "^16.0.3",
+		"express": "^4.18.2",
+		"express-rate-limit": "^6.7.0",
+		"fs": "^0.0.1-security",
+		"fs-extra": "^11.1.0",
+		"gif-encoder-2": "^1.0.5",
+		"gl": "^6.0.2",
+		"helmet": "^6.0.1",
+		"multer": "^1.4.5-lts.1",
+		"node": "^19.6.1",
+		"png-file-stream": "^1.2.1",
+		"pngjs": "^7.0.0",
+		"three": "^0.150.1",
+		"zod": "^3.21.0"
+	},
+	"devDependencies": {
+		"@types/prettier": "^2.7.2",
+		"husky": "^8.0.3",
+		"lint-staged": "^13.1.2",
+		"nodemon": "^2.0.20",
+		"prettier": "^2.8.4"
+	},
+	"lint-staged": {
+		"*.js": "prettier --write"
+	}
 }
