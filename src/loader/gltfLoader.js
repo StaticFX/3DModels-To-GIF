@@ -26,8 +26,9 @@ class GLTFLoader extends Loader {
 	 */
 	async load(fileBuffer, parent, color) {
 		if (!this.#gltfLoader) {
-			const { GLTFLoader } = await import('node-three-gltf');
+			const { GLTFLoader, DRACOLoader } = await import('node-three-gltf');
 			this.#gltfLoader = new GLTFLoader();
+			this.#gltfLoader.setDRACOLoader(new DRACOLoader());
 		}
 
 		const gltf = await this.#gltfLoader.parseAsync(fileBuffer);
