@@ -18,9 +18,12 @@ RUN apt-get -y install python cmake libglu1-mesa-dev freeglut3-dev libxi-dev lib
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64 /usr/bin/dumb-init
 RUN chmod 0777 /usr/bin/dumb-init
 
+# Drivers for node-canvas
+RUN apt-get install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++
 
 # Activate the virtual environment
 ENV PATH="/venv/bin:$PATH"
+
 ENV PORT=3000
 ENV DEBUG=false
 

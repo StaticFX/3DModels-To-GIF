@@ -20,7 +20,7 @@ process.on('SIGINT', () => {
 	process.exit(0);
 });
 
-const version = '1.0.1';
+const version = '1.0.2';
 
 console.log('Starting 3DModels-To-Gif Generator Version: ', version);
 
@@ -38,7 +38,7 @@ var limiter = RateLimit({
 app.use(limiter);
 
 app.get('/', (req, res) => {
-	res.status(200).send('STL-To-Gif Generator Version: ', version);
+	res.status(200).send('STL-To-Gif Generator Version: ' + version);
 });
 
 app.use('/create', createGifRouter);
