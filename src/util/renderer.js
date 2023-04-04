@@ -5,7 +5,7 @@ const { Loader } = require('../loader/loader');
 class Renderer {
 	static BASE_FOV = 75;
 	static BASE_NEAR_PLANE = 0.1;
-	static BASE_FAR_PLANE = 1000;
+	static BASE_FAR_PLANE = 10000;
 
 	#gl;
 	#scene;
@@ -45,7 +45,6 @@ class Renderer {
 		);
 		this.#camera.position.z = 20;
 
-
 		this.#scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 		this.#scene.add(new THREE.HemisphereLight(0xffffff, 0.2));
 
@@ -58,8 +57,9 @@ class Renderer {
 	 * @param {string | ArrayBuffer} file absolute path to the file or the file as a buffer
 	 * @param {Loader} loader loader for a given fileType
 	 * @param {number} color color value to tint the object
+	 * @param {number} padding padding to apply around the object
 	 */
-	async addObject(file, loader, color) {
+	async addObject(file, loader, color, padding) {
 		let buffer;
 		if (typeof file === 'string') {
 			const data = await fs.readFile(filepath);
@@ -67,43 +67,43 @@ class Renderer {
 		} else {
 			buffer = file;
 		}
-		
+
 		const object = await loader.load(buffer, this.#parent);
 
-		this.#parent.add(object);
+		const group = new THREE.Group();
+		group.add(object);
 
 		const material = new THREE.MeshPhongMaterial({
 			color,
-			shading: THREE.SmoothShading
 		});
 
-		this.#parent.traverse((child) => {
-			if (child.hasOwnProperty('material')) {
-				child.material = material;
-			}
-		});
-
-		var averagePosition = new THREE.Vector3();
-
-		const box = new THREE.Box3().setFromObject(this.#parent);
-		var middle = new THREE.Vector3();
-		box.getCenter(middle);
-
-		this.#parent.traverse(function (obj) {
+		const meshes = [];
+		group.traverse(function (obj) {
 			if (obj.isMesh) {
-				obj.geometry.computeBoundingBox();
-				obj.geometry.center();
-				averagePosition.add(obj.position);
+				meshes.push(obj);
 			}
-		});	
+		});
 
-		averagePosition.divideScalar(this.#parent.children.length);
-		this.#parent.position.sub(averagePosition);
+		const { mergeBufferGeometries } = await import(
+			'three/examples/jsm/utils/BufferGeometryUtils.js'
+		);
+
+		const mergedGeometry = mergeBufferGeometries(
+			meshes.map((mesh) => mesh.geometry),
+		);
+
+		mergedGeometry.computeBoundingBox();
+		mergedGeometry.center();
+
+		const mergedMesh = new THREE.Mesh(mergedGeometry, material);
+
+		mergedMesh.position.set(0, 0, 0);
+		this.#parent.add(mergedMesh);
+
 		var rad = THREE.MathUtils.degToRad(90);
 		this.#parent.rotateX(rad);
 
-		this.#positionCamera();
-	
+		this.#positionCamera(padding);
 	}
 
 	renderImage() {
@@ -142,11 +142,8 @@ class Renderer {
 	 */
 	rotateScene(axis, angleDeg, axisSpace) {
 		const rad = THREE.MathUtils.degToRad(angleDeg);
-		
-		const axisVector = this.#getAxisByName(axis);
 
-		const sphere = new THREE.SphereGeometry(10, 32, 32);
-		const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+		const axisVector = this.#getAxisByName(axis);
 
 		if (axisSpace === 'OBJECT') {
 			this.#parent.rotateOnAxis(axisVector, rad);
@@ -177,16 +174,18 @@ class Renderer {
 	}
 
 	#positionCamera(padding = 1.2) {
-		const boundingBox = new THREE.Box3().setFromObject(this.#parent);	
+		const boundingBox = new THREE.Box3().setFromObject(this.#parent);
 		const center = boundingBox.getCenter(new THREE.Vector3());
-		const boundingSphere = boundingBox.getBoundingSphere(new THREE.Sphere(center));
+		const boundingSphere = boundingBox.getBoundingSphere(
+			new THREE.Sphere(center),
+		);
 		const maxDimension = boundingSphere.radius * 2 * padding;
 		const size = boundingBox.getSize(new THREE.Vector3());
 
+		const distance =
+			maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
 
-		const distance = maxDimension / (2 * Math.tan((Math.PI * this.#camera.fov) / 360));
-
-		this.#camera.position.set(0,0,0);
+		this.#camera.position.set(0, 0, 0);
 		this.#camera.updateMatrix();
 
 		const deg = THREE.MathUtils.degToRad(45);
@@ -196,20 +195,9 @@ class Renderer {
 		const direction = this.#camera.getWorldDirection(backwardVector);
 		backwardVector.negate();
 		backwardVector.multiplyScalar(distance);
-		
+
 		this.#camera.position.add(backwardVector);
 		this.#camera.updateMatrix();
-
-
-
-		//this.#camera.position.copy(center).add(direction);
-
-		//this.#camera.translateY(-size.y);
-		//this.#camera.lookAt(center);
-
-		this.#camera.updateMatrix();
-
-		//this.#parent.translateY(size.y / 2);
 	}
 }
 

@@ -20,7 +20,7 @@ class GifCreator {
 	 * @param {number} color color to tint the object
 	 * @returns
 	 */
-	addFile(file, color) {
+	addFile(file, color, padding) {
 		let extension;
 		if (typeof file === 'string') {
 			extension = path.extname(file);
@@ -33,6 +33,7 @@ class GifCreator {
 			typeof file === 'string' ? file : file.buffer,
 			loader,
 			color,
+			padding,
 		);
 	}
 
@@ -75,6 +76,7 @@ class GifCreator {
 	 * @property {number} delay delay between the images
 	 * @property {number} repeat -1 for none, 0 for infinity, > 0 for fixed value
 	 * @property {boolean} transparent whether to render transparent or not, will replace bgColor with transparent
+	 * @property {number} text text to write as a label to the give
 	 * @property {cbError} cbError called on error
 	 * @property {cbFinish} cbFinish called on finish
 	 * @property {cbProgress} cbProgress called on progress
@@ -88,6 +90,8 @@ class GifCreator {
 	 * @returns {Promise<string>} path to the saved gif
 	 */
 	generateGif(options) {
+		console.debug('Generating new gif...');
+
 		const pictures = 360 / options.angle;
 		const images = [];
 
@@ -112,7 +116,8 @@ class GifCreator {
 			const image = this.#renderer.renderImage();
 			images.push(image);
 
-			console.debug('Rendering frame', i);
+
+			console.debug('Rendering frame: ', i);
 		}
 
 		return this.#gifConverter.convertToGif(images, {
@@ -123,6 +128,7 @@ class GifCreator {
 			optimizer: options.optimizer,
 			backgroundColor: options.background,
 			transparent: options.transparent,
+			text: options.text,
 			cbError: options.cbError,
 			cbFinish: options.cbFinish,
 			cbProgress: options.cbProgress,

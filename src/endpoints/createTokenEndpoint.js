@@ -1,78 +1,91 @@
 const { Router } = require('express');
-const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { GifCreator } = require('../gifCreator');
-const { createSchema } = require('../schema/create');
+const {
+	singleFileUploadMiddleWare,
+	FILE_FIELD_KEY,
+} = require('../middleware/singleFileUpload');
+const {
+	parameterParsingMiddleWare,
+	OPTIONS_FIELD_KEY,
+} = require('../middleware/parameterParsing');
 
 const TIME_TILL_DELETION = 1000 * 60 * 60 * 5;
 
 const createTokenRouter = new Router();
 
-const storage = multer.memoryStorage();
+createTokenRouter.post(
+	'/',
+	singleFileUploadMiddleWare,
+	parameterParsingMiddleWare,
+	async (req, res, next) => {
+		const token = crypto.randomUUID();
+		const options = req[OPTIONS_FIELD_KEY];
 
-const upload = multer({ storage });
+		res.set('Content-Type', 'application/json');
+		res.status(200).send({ token });
 
-createTokenRouter.post('/create', upload.single('file'), async (req, res) => {
-	let options;
-	try {
-		const body = JSON.parse(req.body.options);
-		options = createSchema.parse(body);
-		options.name ??= path.parse(req.file.originalname).name;
-	} catch (parsingError) {
-		return res.status(400).send(parsingError.issues);
-	}
-
-	const token = crypto.randomUUID();
-
-	res.set('Content-Type', 'application/json');
-	res.status(200).send({ token });
-
-	const outPath = path.resolve(
-		`${process.env.OUTPUT_DIRECTORY}/${token}.gif`,
-	);
-	
-
-
-	const gifCreator = new GifCreator(outPath, options.width, options.height);
-	try {
-		await gifCreator.addFile(
-			{ buffer: req.file.buffer.buffer, name: req.file.originalname },
-			options.objectColor,
+		const outPath = path.resolve(
+			`${process.env.OUTPUT_DIRECTORY}/${token}.gif`,
 		);
-	} catch (err) {
-		console.debug(err);
-		return res.status(400).send({ error: err.toString() });
-	}
 
-	try {
-		gifCreator.generateGif({
-			angle: options.anglePerFrame,
-			axis: options.rotationAxis,
-			repeat: options.loop,
-			background: options.backgroundColor,
-			delay: options.delay,
-			transparent: options.transparent,
-			initialRotation: options.initialRotation,
-			threshold: options.threshold,
-			axisSpace: options.axisSpace,
-		});
-	} catch (err) {
-		console.debug(err);
-	} finally {
-		setTimeout(async () => {
-			if (fs.existsSync(outPath)) {
-				await fs.promises.unlink(outPath);
-			}
-		}, TIME_TILL_DELETION);
-	}
-});
+		const gifCreator = new GifCreator(
+			outPath,
+			options.width,
+			options.height,
+		);
+		try {
+			await gifCreator.addFile(
+				{
+					buffer: req[FILE_FIELD_KEY].buffer.buffer,
+					name: req[FILE_FIELD_KEY].originalname,
+				},
+				options.objectColor,
+				options.padding,
+			);
+		} catch (err) {
+			console.debug(
+				'Error during adding a object after Token creation:',
+				err,
+			);
+		}
 
-createTokenRouter.get('/:token', async (req, res) => {
-	const token = req.params.token;
+		try {
+			gifCreator.generateGif({
+				angle: options.anglePerFrame,
+				axis: options.cameraRotationAxis,
+				repeat: options.loop,
+				background: options.backgroundColor,
+				delay: options.delay,
+				transparent: options.transparent,
+				initialRotation: options.initialRotation,
+				threshold: options.threshold,
+				axisSpace: options.axisSpace,
+				text: options.label,
+			});
+		} catch (err) {
+			console.debug(
+				'Error during server generating Gif after Token creation:',
+				err,
+			);
+		} finally {
+			setTimeout(async () => {
+				if (fs.existsSync(outPath)) {
+					await fs.promises.unlink(outPath);
+				}
+			}, TIME_TILL_DELETION);
+		}
+	},
+);
+
+createTokenRouter.get('/:token', async (req, res, next) => {
+	const token = req.params?.token;
 
 	if (!token) {
-		return res.status(400).send({ error: 'No token provided' });
+		const error = new Error('No token provided');
+		error.statusCode = 400;
+		return next(error);
 	}
 
 	const filePath = path.resolve(
@@ -80,26 +93,35 @@ createTokenRouter.get('/:token', async (req, res) => {
 	);
 
 	if (!fs.existsSync(filePath)) {
-		return res
-			.status(404)
-			.send({ error: 'File with given token does not exist' });
+		const error = new Error('File with given token does not exist');
+		error.statusCode = 404;
+		return next(error);
 	}
 
-	res.set('Content-Type', 'image/gif');
-	res.set(
-		'Content-Disposition',
-		`Content-Disposition: attachment; filename="${token}.gif"`,
-	);
+	try {
+		res.set('Content-Type', 'image/gif');
+		res.set(
+			'Content-Disposition',
+			`Content-Disposition: attachment; filename="${token}.gif"`,
+		);
+		const fileStream = fs.createReadStream(filePath);
 
-	fs.createReadStream(filePath).pipe(res);
+		fileStream.pipe(res);
 
-	res.on('finish', () => {
-		try {
-			fs.promises.unlink(filePath);
-		} catch (err) {
-			console.debug(err);
-		}
-	});
+		fileStream.on('error', (err) => {
+			console.debug(`Error while reading file: ${err.message}`, err);
+		});
+
+		res.once('close', () => {
+			try {
+				fs.promises.unlink(filePath);
+			} catch (err) {
+				console.debug(err);
+			}
+		});
+	} catch (err) {
+		console.debug(err);
+	}
 });
 
 module.exports = { createTokenRouter };
