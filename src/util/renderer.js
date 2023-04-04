@@ -43,7 +43,7 @@ class Renderer {
 			Renderer.BASE_NEAR_PLANE,
 			Renderer.BASE_FAR_PLANE,
 		);
-		this.#camera.position.z = 20;
+		// this.#camera.position.z = 20;
 
 		this.#scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 		this.#scene.add(new THREE.HemisphereLight(0xffffff, 0.2));
@@ -169,6 +169,18 @@ class Renderer {
 
 		this.#camera.position.add(backwardVector);
 		this.#camera.updateMatrix();
+	}
+
+	/**
+	 * Dispose all materials and geometries in the scene
+	 */
+	dispose() {
+		this.#scene.traverse((object) => {
+			if (object.isMesh) {
+				object.geometry.dispose();
+				object.material.dispose();
+			}
+		});
 	}
 }
 

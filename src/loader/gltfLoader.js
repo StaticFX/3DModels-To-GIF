@@ -24,17 +24,46 @@ class GLTFLoader extends Loader {
 	 * @param {number} color color to tint the object with
 	 * @returns {Promise<undefined>}
 	 */
-	async load(fileBuffer, parent) {
+	async load(fileBuffer, parent, color) {
 		if (!this.#gltfLoader) {
 			const { GLTFLoader } = await import('node-three-gltf');
 			this.#gltfLoader = new GLTFLoader();
 		}
 
-		const objects = await this.#gltfLoader.parseAsync(fileBuffer);
+		const gltf = await this.#gltfLoader.parseAsync(fileBuffer);
 
-		objects.scenes?.forEach((scene) => {
-			parent.add(scene);
+		const box = new THREE.Box3().setFromObject(gltf.scene);
+		const center = box.getCenter(new THREE.Vector3());
+		gltf.scene.position.sub(center);
+
+		const material = new THREE.MeshPhongMaterial({ color });
+		gltf.scene.children.forEach((object) => {
+			if (object.isMesh) {
+				object.material = material;
+			}
+			this.#traverse(object, (object) => {
+				if (object.isMesh) {
+					object.material = material;
+				}
+			});
 		});
+
+		parent.add(gltf.scene);
+	}
+
+	/**
+	 * @callback TraverseCallback
+	 * @param {THREE.Object3D} child current child
+	 */
+
+	/**
+	 * loop over each child, including nested ones, and execute a callback
+	 * @param {THREE.Object3D} object parent object
+	 * @param {TraverseCallback} callback callback to execute on each child
+	 */
+	#traverse(object, callback) {
+		callback(object);
+		object.children.forEach((child) => this.#traverse(child, callback));
 	}
 }
 
