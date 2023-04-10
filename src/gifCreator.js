@@ -116,9 +116,10 @@ class GifCreator {
 			const image = this.#renderer.renderImage();
 			images.push(image);
 
-
 			console.debug('Rendering frame: ', i);
 		}
+
+		this.#renderer.dispose();
 
 		return this.#gifConverter.convertToGif(images, {
 			dataStream: options.dataStream,

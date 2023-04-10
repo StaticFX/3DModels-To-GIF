@@ -43,7 +43,7 @@ class Renderer {
 			Renderer.BASE_NEAR_PLANE,
 			Renderer.BASE_FAR_PLANE,
 		);
-		this.#camera.position.z = 20;
+		// this.#camera.position.z = 20;
 
 		this.#scene.add(new THREE.AmbientLight(0xffffff, 0.4));
 		this.#scene.add(new THREE.HemisphereLight(0xffffff, 0.2));
@@ -68,38 +68,9 @@ class Renderer {
 			buffer = file;
 		}
 
-		const object = await loader.load(buffer, this.#parent);
+		await loader.load(buffer, this.#parent, color);
 
-		const group = new THREE.Group();
-		group.add(object);
-
-		const material = new THREE.MeshPhongMaterial({
-			color,
-		});
-
-		const meshes = [];
-		group.traverse(function (obj) {
-			if (obj.isMesh) {
-				meshes.push(obj);
-			}
-		});
-
-		const { mergeBufferGeometries } = await import(
-			'three/examples/jsm/utils/BufferGeometryUtils.js'
-		);
-
-		const mergedGeometry = mergeBufferGeometries(
-			meshes.map((mesh) => mesh.geometry),
-		);
-
-		mergedGeometry.computeBoundingBox();
-		mergedGeometry.center();
-
-		const mergedMesh = new THREE.Mesh(mergedGeometry, material);
-
-		mergedMesh.position.set(0, 0, 0);
-		this.#parent.add(mergedMesh);
-
+		//Base rotation of 90deg because THREE.js handles xyz axes different to other programs
 		var rad = THREE.MathUtils.degToRad(90);
 		this.#parent.rotateX(rad);
 
@@ -198,6 +169,18 @@ class Renderer {
 
 		this.#camera.position.add(backwardVector);
 		this.#camera.updateMatrix();
+	}
+
+	/**
+	 * Dispose all materials and geometries in the scene
+	 */
+	dispose() {
+		this.#scene.traverse((object) => {
+			if (object.isMesh) {
+				object.geometry.dispose();
+				object.material.dispose();
+			}
+		});
 	}
 }
 
